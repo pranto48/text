@@ -1,0 +1,213 @@
+/* Base styles for the liquid glass theme */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); /* Vibrant gradient background */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    color: #e0e0e0; /* Light text for dark/vibrant background */
+}
+
+/* Glassmorphism effect for cards and main containers */
+.glass-card {
+    background: rgba(255, 255, 255, 0.15); /* Semi-transparent white */
+    backdrop-filter: blur(10px); /* Blur effect */
+    border: 1px solid rgba(255, 255, 255, 0.2); /* Subtle border */
+    border-radius: 15px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); /* Lifted shadow */
+    transition: all 0.3s ease-in-out; /* Smooth transitions */
+}
+
+.glass-card:hover {
+    transform: translateY(-5px); /* Subtle lift on hover */
+    box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.45);
+}
+
+/* Navbar specific glass effect */
+.glass-navbar {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 15px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Buttons with modern styling and animations */
+.btn-glass-primary {
+    @apply bg-blue-500 text-white font-semibold py-2 px-6 rounded-full shadow-lg;
+    background: linear-gradient(45deg, #4a90e2, #50e3c2); /* Gradient for primary */
+    transition: all 0.3s ease-in-out;
+    border: none;
+}
+
+.btn-glass-primary:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    opacity: 0.9;
+}
+
+.btn-glass-secondary {
+    @apply bg-gray-600 text-white font-semibold py-2 px-6 rounded-full shadow-md;
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease-in-out;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-glass-secondary:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Form inputs with glass effect */
+.form-glass-input {
+    @apply w-full py-2 px-4 rounded-lg text-white placeholder-gray-300;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease-in-out;
+}
+
+.form-glass-input:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.5); /* Blue glow on focus */
+}
+
+/* Alert messages */
+.alert-glass-success {
+    @apply p-4 rounded-lg text-green-100;
+    background: rgba(76, 175, 80, 0.3); /* Greenish transparent */
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(76, 175, 80, 0.5);
+}
+
+.alert-glass-error {
+    @apply p-4 rounded-lg text-red-100;
+    background: rgba(244, 67, 54, 0.3); /* Reddish transparent */
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(244, 67, 54, 0.5);
+}
+
+.alert-glass-warning {
+    @apply p-4 rounded-lg text-yellow-100;
+    background: rgba(255, 193, 7, 0.3); /* Yellowish transparent */
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 193, 7, 0.5);
+}
+
+/* Icons and text colors */
+.text-primary-light { @apply text-blue-300; }
+.text-secondary-light { @apply text-gray-300; }
+
+/* Page Load Animation */
+.page-content {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: page-fade-in 0.5s 0.1s ease-out forwards;
+}
+@keyframes page-fade-in {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* New: Form Fade-in Animation */
+.form-fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: form-fade-in 0.6s ease-out forwards;
+}
+@keyframes form-fade-in {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* Navigation Links */
+.nav-link {
+    @apply text-secondary-light hover:text-blue-300 px-3 py-2 rounded-md text-sm font-medium;
+    transition: all 0.2s ease-in-out;
+}
+.nav-link.active {
+    @apply text-blue-300 bg-white bg-opacity-10;
+    box-shadow: 0 0 10px rgba(74, 144, 226, 0.3);
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+    .navbar .flex-col {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .navbar .space-x-4 {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+        margin-top: 1rem;
+    }
+    .nav-link {
+        width: 100%;
+        text-align: left;
+        padding: 0.5rem 1rem;
+    }
+}
+
+/* Admin Panel Specific Styles (Dark Theme) */
+.admin-body {
+    background: #1a202c; /* Dark background */
+    color: #e2e8f0; /* Light text */
+}
+
+.admin-navbar {
+    background: #2d3748; /* Slightly lighter dark for navbar */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.admin-nav-link {
+    @apply text-gray-300 hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium;
+    transition: all 0.2s ease-in-out;
+}
+.admin-nav-link.active {
+    @apply text-blue-400 bg-gray-600;
+    box-shadow: 0 0 10px rgba(66, 153, 225, 0.3);
+}
+
+.admin-card {
+    background: #2d3748; /* Dark card background */
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.form-admin-input {
+    @apply w-full py-2 px-3 rounded-md text-gray-100 placeholder-gray-400;
+    background: #4a5568; /* Darker input background */
+    border: 1px solid #4a5568;
+    transition: all 0.2s ease-in-out;
+}
+
+.form-admin-input:focus {
+    outline: none;
+    border-color: #63b3ed; /* Blue focus border */
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+}
+
+.btn-admin-primary {
+    @apply bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-admin-danger {
+    @apply bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md;
+    transition: all 0.2s ease-in-out;
+}
+
+.alert-admin-success {
+    @apply bg-green-700 text-white px-4 py-3 rounded relative;
+}
+
+.alert-admin-error {
+    @apply bg-red-700 text-white px-4 py-3 rounded relative;
+}

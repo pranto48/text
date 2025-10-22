@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: . # Build context is the docker-ampnm folder
+      dockerfile: Dockerfile
+    # The entrypoint is now handled by the Dockerfile itself
+    volumes:
+      - ./ampnm-app-source/:/var/www/html/ # Mount the application source into the container
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DB_HOST=db # Changed from 127.0.0.1 to 'db' (the service name)
+      - DB_NAME=network_monitor
+      - DB_USER=user
+      - DB_PASSWORD=password
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - ADMIN_PASSWORD=password
+      - LICENSE_API_URL=https://portal.itsupport.com.bd/verify_license.php # Your external license verification service URL
+      # APP_LICENSE_KEY is no longer set here. It is configured via the web UI after initial setup.
+    ports:
+      - "2266:2266" # Main app will now run on port 2266
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: network_monitor
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  db_data:
