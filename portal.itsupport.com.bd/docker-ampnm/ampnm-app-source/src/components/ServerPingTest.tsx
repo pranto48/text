@@ -79,10 +79,10 @@ const ServerPingTest = () => {
 
   return (
     <div className="space-y-4">
-      <Card>
+      <Card className="bg-card text-foreground border-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Server className="h-5 w-5" />
+            <Server className="h-5 w-5 text-primary" />
             Server Ping Test
           </CardTitle>
           <CardDescription>
@@ -91,23 +91,23 @@ const ServerPingTest = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2"> {/* Adjusted flex direction here */}
               <Input
                 placeholder="Enter hostname or IP (e.g., 192.168.1.1 or google.com)"
                 value={host}
                 onChange={(e) => setHost(e.target.value)}
-                className="flex-1"
+                className="flex-1 bg-background border-border text-foreground"
               />
               <Input
                 type="number"
                 placeholder="Count"
                 value={pingCount}
                 onChange={(e) => setPingCount(Math.max(1, parseInt(e.target.value) || 1))}
-                className="w-20"
+                className="w-full sm:w-20 bg-background border-border text-foreground" {/* Adjusted width here */}
                 min="1"
                 max="10"
               />
-              <Button onClick={performPing} disabled={isPinging}>
+              <Button onClick={performPing} disabled={isPinging} className="bg-primary hover:bg-primary/90 text-primary-foreground">
                 {isPinging ? "Pinging..." : "Ping"}
               </Button>
             </div>
@@ -125,7 +125,7 @@ const ServerPingTest = () => {
               <div className="space-y-3">
                 <h3 className="text-sm font-medium">Recent Server Pings</h3>
                 {pingResults.map((result, index) => (
-                  <div key={index} className="p-4 border rounded-lg space-y-3">
+                  <div key={index} className="p-4 border rounded-lg space-y-3 bg-background border-border">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         {result.success && result.parsedStats?.packetLoss !== 100 ? (
@@ -169,7 +169,7 @@ const ServerPingTest = () => {
                     )}
 
                     {!result.success && (
-                      <div className="text-sm text-red-500 bg-red-50 p-2 rounded">
+                      <div className="text-sm text-destructive bg-destructive/10 p-2 rounded">
                         <AlertCircle className="h-4 w-4 inline mr-2" />
                         {result.error || "Ping failed"}
                       </div>

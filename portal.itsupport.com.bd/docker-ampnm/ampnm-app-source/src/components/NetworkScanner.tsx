@@ -67,10 +67,10 @@ const NetworkScanner = () => {
 
   return (
     <div className="space-y-4">
-      <Card>
+      <Card className="bg-card text-foreground border-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Scan className="h-5 w-5" />
+            <Scan className="h-5 w-5 text-primary" />
             Network Scanner (Server-side)
           </CardTitle>
           <CardDescription>
@@ -79,16 +79,17 @@ const NetworkScanner = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2"> {/* Adjusted flex direction here */}
               <Input
                 placeholder="Enter subnet (e.g., 192.168.1.0/24)"
                 value={subnet}
                 onChange={(e) => setSubnet(e.target.value)}
-                className="flex-1"
+                className="flex-1 bg-background border-border text-foreground"
               />
               <Button 
                 onClick={scanNetwork} 
                 disabled={isScanning}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground"
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${isScanning ? 'animate-spin' : ''}`} />
                 {isScanning ? "Scanning..." : "Scan Network"}
@@ -105,7 +106,7 @@ const NetworkScanner = () => {
               <div className="space-y-3">
                 <h3 className="text-sm font-medium">Found Devices ({scannedDevices.length})</h3>
                 {scannedDevices.map((device, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg bg-background border-border">
                     <div className="flex items-center gap-3">
                       <Server className="h-5 w-5 text-green-500" />
                       <div>
@@ -122,13 +123,13 @@ const NetworkScanner = () => {
             )}
 
             {!isScanning && scannedDevices.length === 0 && !scanMessage && (
-              <div className="text-center p-6 border rounded-lg bg-muted">
+              <div className="text-center p-6 border rounded-lg bg-muted border-border">
                 <WifiOff className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <p className="text-sm text-muted-foreground">
                   Enter a subnet and click "Scan Network" to discover devices.
                 </p>
                 <p className="text-xs text-muted-foreground mt-2">
-                  (Requires <a href="https://nmap.org/" target="_blank" className="text-blue-500 hover:underline">nmap</a> to be installed on the server)
+                  (Requires <a href="https://nmap.org/" target="_blank" className="text-primary hover:underline">nmap</a> to be installed on the server)
                 </p>
               </div>
             )}

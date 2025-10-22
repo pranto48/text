@@ -10,7 +10,7 @@ $pdo = getLicenseDbConnection();
 $message = '';
 
 // Handle generate license action
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate_license'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['generate_license']))) {
     $customer_id = (int)$_POST['customer_id'];
     $product_id = (int)$_POST['product_id'];
     $status = $_POST['status'] ?? 'active';
@@ -133,6 +133,11 @@ admin_header("Manage Licenses");
 
 <div class="admin-card p-6">
     <h2 class="text-2xl font-semibold text-blue-400 mb-4">All Licenses</h2>
+    <div class="flex items-center gap-4 mb-4">
+        <input type="text" id="licenseSearchInput" placeholder="Search by key or customer email..." class="form-admin-input flex-grow">
+        <button id="clearSearchBtn" class="btn-admin-secondary text-xs px-3 py-1">Clear</button>
+        <button id="refreshLicensesBtn" class="btn-admin-primary text-xs px-3 py-1"><i class="fas fa-sync-alt mr-1"></i> Refresh</button>
+    </div>
     <div id="licensesTableContainer">
         <div class="overflow-x-auto">
             <table class="min-w-full bg-gray-700 rounded-lg">
@@ -229,18 +234,25 @@ admin_header("Manage Licenses");
         document.getElementById('editLicenseModal').classList.add('hidden');
     }
 
+    const licenseSearchInput = document.getElementById('licenseSearchInput');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    const refreshLicensesBtn = document.getElementById('refreshLicensesBtn');
+    let searchTimeout;
+
     // Function to fetch and render licenses
-    async function fetchAndRenderLicenses() {
+    async function fetchAndRenderLicenses(searchTerm = '') {
         try {
-            const response = await fetch('admin_api.php?action=get_all_licenses');
+            const licensesTableBody = document.getElementById('licensesTableBody');
+            licensesTableBody.innerHTML = '<tr><td colspan="9" class="text-center py-4"><div class="loader mx-auto"></div></td></tr>'; // Show loader
+
+            const response = await fetch(`admin_api.php?action=get_all_licenses&search=${encodeURIComponent(searchTerm)}`);
             const data = await response.json();
 
             if (data.success && data.licenses) {
-                const licensesTableBody = document.getElementById('licensesTableBody');
                 licensesTableBody.innerHTML = ''; // Clear existing rows
 
                 if (data.licenses.length === 0) {
-                    licensesTableBody.innerHTML = '<tr><td colspan="9" class="text-center py-4">No licenses generated yet.</td></tr>';
+                    licensesTableBody.innerHTML = '<tr><td colspan="9" class="text-center py-4">No licenses found.</td></tr>';
                 } else {
                     data.licenses.forEach(license => {
                         const row = `
@@ -249,7 +261,7 @@ admin_header("Manage Licenses");
                                 <td class="py-3 px-6 text-left">${license.customer_email || 'N/A'}</td>
                                 <td class="py-3 px-6 text-left">${license.product_name || 'N/A'}</td>
                                 <td class="py-3 px-6 text-left">
-                                    <span class="py-1 px-3 rounded-full text-xs ${license.status == 'active' ? 'bg-green-500' : (license.status == 'expired' ? 'bg-red-500' : 'bg-yellow-500')}">
+                                    <span class="py-1 px-3 rounded-full text-xs ${license.status == 'active' || license.status == 'free' ? 'bg-green-500' : (license.status == 'expired' ? 'bg-red-500' : 'bg-yellow-500')}">
                                         ${license.status.charAt(0).toUpperCase() + license.status.slice(1)}
                                     </span>
                                 </td>
@@ -290,6 +302,22 @@ admin_header("Manage Licenses");
         }
     }
 
+    licenseSearchInput.addEventListener('input', () => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            fetchAndRenderLicenses(licenseSearchInput.value);
+        }, 500); // Debounce for 500ms
+    });
+
+    clearSearchBtn.addEventListener('click', () => {
+        licenseSearchInput.value = '';
+        fetchAndRenderLicenses('');
+    });
+
+    refreshLicensesBtn.addEventListener('click', () => {
+        fetchAndRenderLicenses(licenseSearchInput.value);
+    });
+
     document.addEventListener('DOMContentLoaded', function() {
         // Display server-side messages as Notyf toasts
         const messageDiv = document.querySelector('.alert-admin-success, .alert-admin-error');
@@ -306,8 +334,8 @@ admin_header("Manage Licenses");
         // Initial load of licenses
         fetchAndRenderLicenses();
 
-        // Set up polling for real-time updates (every 10 seconds)
-        setInterval(fetchAndRenderLicenses, 10000);
+        // Set up polling for real-time updates (every 10 seconds) - now also triggers search
+        setInterval(() => fetchAndRenderLicenses(licenseSearchInput.value), 10000);
     });
 </script>
 

@@ -86,9 +86,9 @@ const LicenseManager = ({ licenseStatus, fetchLicenseStatus }: LicenseManagerPro
 
   return (
     <div className="space-y-4">
-      <Card>
+      <Card className="bg-card text-foreground border-border">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-primary">
             <Key className="h-5 w-5" />
             License Management
           </CardTitle>
@@ -98,9 +98,9 @@ const LicenseManager = ({ licenseStatus, fetchLicenseStatus }: LicenseManagerPro
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-3 border rounded-lg bg-muted">
+            <div className="flex items-center justify-between p-3 border rounded-lg bg-muted border-border">
               <div className="flex items-center gap-2">
-                <Info className="h-4 w-4 text-blue-500" />
+                <Info className="h-4 w-4 text-primary" />
                 <span className="font-medium">Current License Status:</span>
               </div>
               <Badge variant={getLicenseBadgeVariant(licenseStatus.license_status_code)}>
@@ -108,7 +108,7 @@ const LicenseManager = ({ licenseStatus, fetchLicenseStatus }: LicenseManagerPro
               </Badge>
             </div>
 
-            <div className="p-3 border rounded-lg bg-muted">
+            <div className="p-3 border rounded-lg bg-muted border-border">
               <p className="text-sm text-muted-foreground mb-2">
                 {licenseStatus.license_message}
               </p>
@@ -120,21 +120,21 @@ const LicenseManager = ({ licenseStatus, fetchLicenseStatus }: LicenseManagerPro
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card>
+              <Card className="bg-background border-border">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium">Max Devices</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{licenseStatus.max_devices}</div>
+                  <div className="text-2xl font-bold text-primary">{licenseStatus.max_devices}</div>
                   <p className="text-xs text-muted-foreground">Allowed by your license</p>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="bg-background border-border">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium">Installation ID</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-sm font-mono break-all">{licenseStatus.installation_id || 'N/A'}</div>
+                  <div className="text-sm font-mono break-all text-foreground">{licenseStatus.installation_id || 'N/A'}</div>
                   <p className="text-xs text-muted-foreground">Unique ID for this AMPNM instance</p>
                 </CardContent>
               </Card>
@@ -147,13 +147,13 @@ const LicenseManager = ({ licenseStatus, fetchLicenseStatus }: LicenseManagerPro
                 placeholder="Enter your new license key here"
                 value={newLicenseKey}
                 onChange={(e) => setNewLicenseKey(e.target.value)}
-                className="font-mono"
+                className="font-mono bg-background border-border text-foreground"
               />
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Button
                   onClick={handleUpdateLicenseKey}
                   disabled={isUpdatingKey}
-                  className="flex-1"
+                  className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   <Key className={`h-4 w-4 mr-2 ${isUpdatingKey ? 'animate-spin' : ''}`} />
                   {isUpdatingKey ? "Updating..." : "Update License Key"}
@@ -162,7 +162,7 @@ const LicenseManager = ({ licenseStatus, fetchLicenseStatus }: LicenseManagerPro
                   onClick={handleRecheckLicense}
                   disabled={isRechecking}
                   variant="outline"
-                  className="flex-1"
+                  className="flex-1 bg-secondary hover:bg-secondary/80 text-foreground border-border"
                 >
                   <RefreshCw className={`h-4 w-4 mr-2 ${isRechecking ? 'animate-spin' : ''}`} />
                   {isRechecking ? "Rechecking..." : "Recheck License"}
@@ -171,25 +171,25 @@ const LicenseManager = ({ licenseStatus, fetchLicenseStatus }: LicenseManagerPro
             </div>
 
             {(licenseStatus.license_status_code === 'expired' || licenseStatus.license_status_code === 'grace_period' || licenseStatus.license_status_code === 'disabled' || licenseStatus.license_status_code === 'in_use') && (
-              <div className="p-3 border rounded-lg bg-red-500/10 text-red-400 flex items-start gap-2">
+              <div className="p-3 border rounded-lg bg-red-500/10 text-red-400 flex items-start gap-2 border-destructive">
                 <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="font-medium">Action Required:</p>
                   <p className="text-sm">
                     Your license is not active. Please update your license key above or visit the
-                    <a href="https://portal.itsupport.com.bd/products.php" target="_blank" rel="noopener noreferrer" className="underline ml-1">IT Support BD Portal</a>
+                    <a href="https://portal.itsupport.com.bd/products.php" target="_blank" rel="noopener noreferrer" className="underline ml-1 text-primary hover:text-primary/80">IT Support BD Portal</a>
                     to purchase or renew your license.
                   </p>
                 </div>
               </div>
             )}
-            <div className="p-3 border rounded-lg bg-blue-500/10 text-blue-400 flex items-start gap-2">
+            <div className="p-3 border rounded-lg bg-blue-500/10 text-blue-400 flex items-start gap-2 border-primary">
               <Info className="h-5 w-5 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="font-medium">Need Support?</p>
                 <p className="text-sm">
                   If you encounter any issues with your license or need assistance, please visit our
-                  <a href="https://portal.itsupport.com.bd/support.php" target="_blank" rel="noopener noreferrer" className="underline ml-1">Support Ticket System</a>.
+                  <a href="https://portal.itsupport.com.bd/support.php" target="_blank" rel="noopener noreferrer" className="underline ml-1 text-primary hover:text-primary/80">Support Ticket System</a>.
                 </p>
               </div>
             </div>

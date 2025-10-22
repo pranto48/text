@@ -5,21 +5,22 @@
 switch ($action) {
     case 'get_license_status':
         // This information is already set in the session by auth_check.php
+        // It should NOT trigger revalidateLicenseSession here to avoid blocking.
         echo json_encode([
-            'app_license_key' => getAppLicenseKey(), // NEW: Return the current app license key
+            'app_license_key' => getAppLicenseKey(),
             'can_add_device' => $_SESSION['can_add_device'] ?? false,
             'max_devices' => $_SESSION['max_devices'] ?? 0,
             'license_message' => $_SESSION['license_message'] ?? 'License status unknown.',
             'license_status_code' => $_SESSION['license_status_code'] ?? 'unknown',
             'license_grace_period_end' => $_SESSION['license_grace_period_end'] ?? null,
-            'installation_id' => getInstallationId() // NEW: Return the installation ID
+            'installation_id' => getInstallationId()
         ]);
         break;
     case 'force_license_recheck':
-        // Clear the last_license_check timestamp to force an immediate re-verification
-        setLastLicenseCheck(null);
-        // Re-run the full revalidation to update session variables immediately
-        revalidateLicenseSession($pdo, $_SESSION['user_id']);
+        // This action explicitly triggers a revalidation and is called by the frontend.
+        // It is expected to be blocking as it performs the external API call.
+        setLastLicenseCheck(null); // Clear the last_license_check timestamp to force an immediate re-verification
+        revalidateLicenseSession($pdo, $_SESSION['user_id']); // Perform the actual revalidation
         echo json_encode([
             'success' => true,
             'message' => 'License re-check triggered.',
@@ -27,7 +28,7 @@ switch ($action) {
             'license_message' => $_SESSION['license_message'] ?? 'License status unknown.',
         ]);
         break;
-    case 'update_app_license_key': // NEW ACTION
+    case 'update_app_license_key':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $new_license_key = $input['new_license_key'] ?? '';
 
@@ -55,5 +56,14 @@ switch ($action) {
                 echo json_encode(['error' => 'Failed to save new license key to database.']);
             }
         }
+        break;
+    case 'get_user_info':
+        // Return the current user's role from the session
+        // This should NOT trigger any database queries or external API calls.
+        echo json_encode([
+            'role' => $_SESSION['role'] ?? 'user',
+            'user_id' => $_SESSION['user_id'] ?? null,
+            'username' => $_SESSION['username'] ?? null,
+        ]);
         break;
 }

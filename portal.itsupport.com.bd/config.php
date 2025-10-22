@@ -3,9 +3,9 @@
 // These values will be set during the setup process via license_setup.php
 
 define('LICENSE_DB_SERVER', 'localhost');
-define('LICENSE_DB_USERNAME', 'root');
-define('LICENSE_DB_PASSWORD', '');
-define('LICENSE_DB_NAME', 'license_db');
+define('LICENSE_DB_USERNAME', 'bdoldco1_itportal');
+define('LICENSE_DB_PASSWORD', 'Aa329093+-*');
+define('LICENSE_DB_NAME', 'bdoldco1_itportal');
 
 // Function to create database connection for the license service
 function getLicenseDbConnection() {

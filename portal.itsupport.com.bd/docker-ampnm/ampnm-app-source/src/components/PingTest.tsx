@@ -16,7 +16,8 @@ interface PingResult {
 const PingTest = () => {
   const [host, setHost] = useState("192.168.9.3");
   const [isPinging, setIsPinging] = useState(false);
-  const [pingResults, setPingResults] = useState<PingResult[]>([]);
+  const [pingResults, setPingResults] = useState<PingResult[]>([]
+  );
 
   // WebSocket-based ping for local devices
   const performWebSocketPing = async (ip: string): Promise<number> => {
@@ -171,10 +172,10 @@ const PingTest = () => {
 
   return (
     <div className="space-y-4">
-      <Card>
+      <Card className="bg-card text-foreground border-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Network className="h-5 w-5" />
+            <Network className="h-5 w-5 text-primary" />
             Browser Ping Test
           </CardTitle>
           <CardDescription>
@@ -182,21 +183,22 @@ const PingTest = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-2 mb-4">
+          <div className="flex flex-col sm:flex-row gap-2 mb-4"> {/* Adjusted flex direction here */}
             <Input
               placeholder="Enter hostname or IP (e.g., 192.168.1.1 or google.com)"
               value={host}
               onChange={(e) => setHost(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && performPing()}
+              className="bg-background border-border text-foreground"
             />
-            <Button onClick={performPing} disabled={isPinging}>
+            <Button onClick={performPing} disabled={isPinging} className="bg-primary hover:bg-primary/90 text-primary-foreground">
               {isPinging ? "Pinging..." : "Ping"}
             </Button>
           </div>
 
-          <div className="text-sm text-muted-foreground mb-4 p-3 bg-muted rounded-lg">
+          <div className="text-sm text-muted-foreground mb-4 p-3 bg-muted rounded-lg border-border">
             <div className="flex items-center gap-2 mb-2">
-              <Info className="h-4 w-4" />
+              <Info className="h-4 w-4 text-primary" />
               <span className="font-medium">Browser Limitations:</span>
             </div>
             <ul className="list-disc list-inside space-y-1">
@@ -211,7 +213,7 @@ const PingTest = () => {
             <div className="space-y-2">
               <h3 className="text-sm font-medium">Recent Pings</h3>
               {pingResults.map((result, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                <div key={index} className="flex items-center justify-between p-3 border rounded-lg bg-background border-border">
                   <div className="flex items-center gap-3">
                     {result.status === "success" ? (
                       <Wifi className="h-5 w-5 text-green-500" />

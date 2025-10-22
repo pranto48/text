@@ -106,7 +106,7 @@ export const DeviceEditorDialog = ({ isOpen, onClose, onSave, device }: DeviceEd
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] flex flex-col max-h-[90vh]">
+      <DialogContent className="w-full sm:max-w-[425px] flex flex-col max-h-[90vh] bg-card text-foreground"> {/* Adjusted width here */}
         <DialogHeader>
           <DialogTitle>{device?.id ? 'Edit Device' : 'Add Device'}</DialogTitle>
           <DialogDescription>
@@ -117,8 +117,8 @@ export const DeviceEditorDialog = ({ isOpen, onClose, onSave, device }: DeviceEd
           <form onSubmit={form.handleSubmit(handleSubmit)} className="flex-1 overflow-y-auto space-y-6 p-1">
             <Accordion type="multiple" defaultValue={["basic-information"]}> {/* Default open Basic Info */}
               {/* Basic Information Section */}
-              <AccordionItem value="basic-information">
-                <AccordionTrigger className="text-lg font-semibold text-foreground">Basic Information</AccordionTrigger>
+              <AccordionItem value="basic-information" className="border-border">
+                <AccordionTrigger className="text-lg font-semibold text-foreground hover:no-underline">Basic Information</AccordionTrigger>
                 <AccordionContent className="space-y-4 p-2">
                   <FormField
                     control={form.control}
@@ -127,7 +127,7 @@ export const DeviceEditorDialog = ({ isOpen, onClose, onSave, device }: DeviceEd
                       <FormItem>
                         <FormLabel>Name</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g., Main Router" {...field} />
+                          <Input placeholder="e.g., Main Router" {...field} className="bg-background border-border text-foreground" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -141,13 +141,13 @@ export const DeviceEditorDialog = ({ isOpen, onClose, onSave, device }: DeviceEd
                         <FormLabel>Type / Default Icon</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger className="bg-background border-border text-foreground">
                               <SelectValue placeholder="Select a type" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
+                          <SelectContent className="bg-card text-foreground border-border">
                             {deviceTypes.map((type) => (
-                              <SelectItem key={type} value={type} className="capitalize">
+                              <SelectItem key={type} value={type} className="capitalize hover:bg-secondary">
                                 {type}
                               </SelectItem>
                             ))}
@@ -164,7 +164,7 @@ export const DeviceEditorDialog = ({ isOpen, onClose, onSave, device }: DeviceEd
                       <FormItem>
                         <FormLabel>Description (Optional)</FormLabel>
                         <FormControl>
-                          <Textarea placeholder="Optional notes about the device" {...field} />
+                          <Textarea placeholder="Optional notes about the device" {...field} className="bg-background border-border text-foreground" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -175,8 +175,8 @@ export const DeviceEditorDialog = ({ isOpen, onClose, onSave, device }: DeviceEd
 
               {/* Network Configuration Section (Conditional) */}
               {!isBoxType && (
-                <AccordionItem value="network-configuration">
-                  <AccordionTrigger className="text-lg font-semibold text-foreground">Network Configuration</AccordionTrigger>
+                <AccordionItem value="network-configuration" className="border-border">
+                  <AccordionTrigger className="text-lg font-semibold text-foreground hover:no-underline">Network Configuration</AccordionTrigger>
                   <AccordionContent className="space-y-4 p-2">
                     <FormField
                       control={form.control}
@@ -185,7 +185,7 @@ export const DeviceEditorDialog = ({ isOpen, onClose, onSave, device }: DeviceEd
                         <FormItem>
                           <FormLabel>IP Address</FormLabel>
                           <FormControl>
-                            <Input placeholder="e.g., 192.168.1.1" {...field} />
+                            <Input placeholder="e.g., 192.168.1.1" {...field} className="bg-background border-border text-foreground" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -204,6 +204,7 @@ export const DeviceEditorDialog = ({ isOpen, onClose, onSave, device }: DeviceEd
                               {...field}
                               value={field.value ?? ''}
                               onChange={(event) => field.onChange(event.target.value === '' ? null : +event.target.value)}
+                              className="bg-background border-border text-foreground"
                             />
                           </FormControl>
                           <FormDescription>If set, status is based on this port. If empty, it will use ICMP (ping).</FormDescription>
@@ -224,6 +225,7 @@ export const DeviceEditorDialog = ({ isOpen, onClose, onSave, device }: DeviceEd
                               {...field}
                               value={field.value ?? ''}
                               onChange={(event) => field.onChange(event.target.value === '' ? null : +event.target.value)}
+                              className="bg-background border-border text-foreground"
                             />
                           </FormControl>
                           <FormDescription>Automatically ping this device at regular intervals.</FormDescription>
@@ -236,8 +238,8 @@ export const DeviceEditorDialog = ({ isOpen, onClose, onSave, device }: DeviceEd
               )}
 
               {/* Appearance Section */}
-              <AccordionItem value="appearance">
-                <AccordionTrigger className="text-lg font-semibold text-foreground">Appearance</AccordionTrigger>
+              <AccordionItem value="appearance" className="border-border">
+                <AccordionTrigger className="text-lg font-semibold text-foreground hover:no-underline">Appearance</AccordionTrigger>
                 <AccordionContent className="space-y-4 p-2">
                   <FormField
                     control={form.control}
@@ -252,6 +254,7 @@ export const DeviceEditorDialog = ({ isOpen, onClose, onSave, device }: DeviceEd
                             {...field}
                             value={field.value ?? ''}
                             onChange={(event) => field.onChange(event.target.value === '' ? null : +event.target.value)}
+                            className="bg-background border-border text-foreground"
                           />
                         </FormControl>
                         <FormMessage />
@@ -271,6 +274,7 @@ export const DeviceEditorDialog = ({ isOpen, onClose, onSave, device }: DeviceEd
                             {...field}
                             value={field.value ?? ''}
                             onChange={(event) => field.onChange(event.target.value === '' ? null : +event.target.value)}
+                            className="bg-background border-border text-foreground"
                           />
                         </FormControl>
                         <FormMessage />
@@ -282,7 +286,7 @@ export const DeviceEditorDialog = ({ isOpen, onClose, onSave, device }: DeviceEd
                       control={form.control}
                       name="show_live_ping"
                       render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-background border-border">
                           <div className="space-y-0.5">
                             <FormLabel>Show Live Ping Status</FormLabel>
                             <FormDescription>
@@ -305,11 +309,11 @@ export const DeviceEditorDialog = ({ isOpen, onClose, onSave, device }: DeviceEd
 
               {/* Status Thresholds Section (Conditional) */}
               {!isBoxType && (
-                <AccordionItem value="status-thresholds">
-                  <AccordionTrigger className="text-lg font-semibold text-foreground">Status Thresholds (Optional)</AccordionTrigger>
+                <AccordionItem value="status-thresholds" className="border-border">
+                  <AccordionTrigger className="text-lg font-semibold text-foreground hover:no-underline">Status Thresholds (Optional)</AccordionTrigger>
                   <AccordionContent className="space-y-4 p-2">
                     <p className="text-sm text-muted-foreground">Define values to trigger 'Warning' or 'Critical' status.</p>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4"> {/* Adjusted grid here */}
                       <FormField
                         control={form.control}
                         name="warning_latency_threshold"
@@ -322,6 +326,7 @@ export const DeviceEditorDialog = ({ isOpen, onClose, onSave, device }: DeviceEd
                                 {...field}
                                 value={field.value ?? ''}
                                 onChange={(event) => field.onChange(event.target.value === '' ? null : +event.target.value)}
+                                className="bg-background border-border text-foreground"
                               />
                             </FormControl>
                             <FormMessage />
@@ -340,6 +345,7 @@ export const DeviceEditorDialog = ({ isOpen, onClose, onSave, device }: DeviceEd
                                 {...field}
                                 value={field.value ?? ''}
                                 onChange={(event) => field.onChange(event.target.value === '' ? null : +event.target.value)}
+                                className="bg-background border-border text-foreground"
                               />
                             </FormControl>
                             <FormMessage />
@@ -358,6 +364,7 @@ export const DeviceEditorDialog = ({ isOpen, onClose, onSave, device }: DeviceEd
                                 {...field}
                                 value={field.value ?? ''}
                                 onChange={(event) => field.onChange(event.target.value === '' ? null : +event.target.value)}
+                                className="bg-background border-border text-foreground"
                               />
                             </FormControl>
                             <FormMessage />
@@ -376,6 +383,7 @@ export const DeviceEditorDialog = ({ isOpen, onClose, onSave, device }: DeviceEd
                                 {...field}
                                 value={field.value ?? ''}
                                 onChange={(event) => field.onChange(event.target.value === '' ? null : +event.target.value)}
+                                className="bg-background border-border text-foreground"
                               />
                             </FormControl>
                             <FormMessage />
@@ -391,7 +399,7 @@ export const DeviceEditorDialog = ({ isOpen, onClose, onSave, device }: DeviceEd
               <Button type="button" variant="ghost" onClick={onClose}>
                 Cancel
               </Button>
-              <Button type="submit">Save</Button>
+              <Button type="submit" className="bg-primary hover:bg-primary/90 text-primary-foreground">Save</Button>
             </DialogFooter>
           </form>
         </Form>

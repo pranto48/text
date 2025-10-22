@@ -115,13 +115,25 @@ switch ($action) {
     case 'get_all_licenses': // NEW ACTION
         try {
             $pdo = getLicenseDbConnection(); // Ensure PDO is initialized for the license DB
-            $stmt_licenses = $pdo->query("
+            $search_term = $_GET['search'] ?? '';
+
+            $sql = "
                 SELECT l.*, c.email as customer_email, p.name as product_name
                 FROM `licenses` l
                 LEFT JOIN `customers` c ON l.customer_id = c.id
                 LEFT JOIN `products` p ON l.product_id = p.id
-                ORDER BY l.created_at DESC
-            ");
+            ";
+            $params = [];
+
+            if (!empty($search_term)) {
+                $sql .= " WHERE l.license_key LIKE ? OR c.email LIKE ?";
+                $params[] = "%{$search_term}%";
+                $params[] = "%{$search_term}%";
+            }
+            $sql .= " ORDER BY l.created_at DESC";
+
+            $stmt_licenses = $pdo->prepare($sql);
+            $stmt_licenses->execute($params);
             $licenses = $stmt_licenses->fetchAll(PDO::FETCH_ASSOC);
             echo json_encode(['success' => true, 'licenses' => $licenses]);
         } catch (PDOException $e) {

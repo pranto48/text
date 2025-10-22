@@ -146,6 +146,37 @@ export const getDevices = async (map_id?: string | null) => {
   })) as NetworkDevice[];
 };
 
+export const getUnmappedDevices = async (): Promise<NetworkDevice[]> => {
+  const data = await callPhpApi('get_devices', 'GET', { unmapped: true });
+  return data.map((d: any) => ({
+    id: String(d.id),
+    name: d.name,
+    ip_address: d.ip,
+    position_x: parseFloat(d.x) || 0,
+    position_y: parseFloat(d.y) || 0,
+    icon: d.type,
+    status: d.status,
+    ping_interval: d.ping_interval,
+    icon_size: d.icon_size,
+    name_text_size: d.name_text_size,
+    last_ping: d.last_seen,
+    last_ping_result: d.status === 'online',
+    check_port: d.check_port,
+    type: d.type,
+    description: d.description,
+    map_id: null,
+    warning_latency_threshold: d.warning_latency_threshold,
+    warning_packetloss_threshold: d.warning_packetloss_threshold,
+    critical_latency_threshold: d.critical_latency_threshold,
+    critical_packetloss_threshold: d.critical_packetloss_threshold,
+    last_avg_time: d.last_avg_time,
+    last_ttl: d.last_ttl,
+    show_live_ping: Boolean(parseInt(d.show_live_ping)),
+    map_name: d.map_name,
+    last_ping_output: d.last_ping_output,
+  })) as NetworkDevice[];
+};
+
 export const getFullDashboardData = async (mapId: string): Promise<FullDashboardData> => {
   const data = await callPhpApi('get_dashboard_data', 'GET', { map_id: mapId });
   return {
@@ -204,7 +235,7 @@ export const updateDevice = async (id: string, updates: Partial<NetworkDevice>) 
     warning_latency_threshold: updates.warning_latency_threshold,
     warning_packetloss_threshold: updates.warning_packetloss_threshold,
     critical_latency_threshold: updates.critical_latency_threshold,
-    critical_packetloss_threshold: updates.critical_packetloss_threshold,
+    critical_packetloss_threshold: updates.critical_latency_threshold,
     show_live_ping: updates.show_live_ping,
     status: updates.status,
     last_seen: updates.last_ping,
@@ -327,6 +358,11 @@ export const updateUserRole = async (id: string, role: User['role']) => {
 
 export const deleteUser = async (id: string) => {
   return await callPhpApi('delete_user', 'POST', undefined, { id });
+};
+
+// NEW: Docker Maintenance API call
+export const updateDockerImage = async (imageName: string): Promise<{ success: boolean; message: string; error?: string }> => {
+  return await callPhpApi('docker_update', 'POST', undefined, { image_name: imageName });
 };
 
 // Real-time subscription for device changes - NOT USED WITH PHP BACKEND

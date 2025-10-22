@@ -1,6 +1,26 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Activity, Wifi, Server, Clock, RefreshCw, Network, Key, Users } from "lucide-react"; // Added Users icon
+import {
+  Activity,
+  Wifi,
+  Server,
+  Clock,
+  RefreshCw,
+  Network,
+  Key,
+  Users,
+  Package,
+  Settings,
+  Map,
+  WifiOff,
+  Desktop, // Added for Server Ping icon
+  Search, // Added for Network Scanner icon
+  History, // Added for Ping History icon
+  ShieldHalf, // Added for License icon
+  BoxOpen, // Added for Products icon
+  UserCog, // Added for Users icon
+  Tools, // Added for Maintenance icon
+} from "lucide-react";
 import PingTest from "@/components/PingTest";
 import NetworkStatus from "@/components/NetworkStatus";
 import NetworkScanner from "@/components/NetworkScanner";
@@ -8,16 +28,29 @@ import ServerPingTest from "@/components/ServerPingTest";
 import PingHistory from "@/components/PingHistory";
 import { MadeWithDyad } from "@/components/made-with-dyad";
 import NetworkMap from "@/components/NetworkMap";
-import {
-  getLicenseStatus,
-  LicenseStatus,
-  User, // Import User interface
-} from "@/services/networkDeviceService";
+import { getLicenseStatus, LicenseStatus, User } from "@/services/networkDeviceService";
 import { Skeleton } from "@/components/ui/skeleton";
 import DashboardContent from "@/components/DashboardContent";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import LicenseManager from "@/components/LicenseManager";
-import UserManagement from "@/components/UserManagement"; // Import the new UserManagement component
+import UserManagement from "@/components/UserManagement";
+import DockerUpdate from "@/components/DockerUpdate";
+import Products from "./Products";
+import Maintenance from "./Maintenance";
+import { Card, CardContent } from "@/components/ui/card";
+
+// Helper to get initial tab from URL hash
+const getInitialTab = () => {
+  const hash = window.location.hash.substring(1);
+  const validTabs = [
+    "dashboard", "devices", "ping", "server-ping", "status", "scanner", 
+    "history", "map", "license", "products", "users", "maintenance",
+  ];
+  if (validTabs.includes(hash)) {
+    return hash;
+  }
+  return "dashboard";
+};
 
 const MainApp = () => {
   const {
@@ -27,107 +60,162 @@ const MainApp = () => {
     devices,
     dashboardStats,
     recentActivity,
-    isLoading,
+    isLoading: isDashboardLoading,
     fetchMaps,
     fetchDashboardData,
   } = useDashboardData();
 
-  const [licenseStatus, setLicenseStatus] = useState<LicenseStatus>({ app_license_key: '', can_add_device: false, max_devices: 0, license_message: 'Loading license status...', license_status_code: 'unknown', license_grace_period_end: null, installation_id: '' });
-  const [userRole, setUserRole] = useState<User['role']>('user'); // State for user role
+  const [licenseStatus, setLicenseStatus] = useState<LicenseStatus>({
+    app_license_key: "",
+    can_add_device: false,
+    max_devices: 0,
+    license_message: "Loading license status...",
+    license_status_code: "unknown",
+    license_grace_period_end: null,
+    installation_id: "",
+  });
+  const [userRole, setUserRole] = useState<User["role"]>("user");
+  const [isUserRoleLoading, setIsUserRoleLoading] = useState(true);
+  const [isLicenseStatusLoading, setIsLicenseStatusLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState(getInitialTab());
 
   const fetchLicenseStatus = useCallback(async () => {
+    setIsLicenseStatusLoading(true);
     try {
       const status = await getLicenseStatus();
       setLicenseStatus(status);
     } catch (error) {
       console.error("Failed to load license status:", error);
-      setLicenseStatus({ app_license_key: '', can_add_device: false, max_devices: 0, license_message: 'Error loading license status.', license_status_code: 'error', license_grace_period_end: null, installation_id: '' });
+      setLicenseStatus(prev => ({
+        ...prev,
+        license_message: "Error loading license status.",
+        license_status_code: "error",
+      }));
+    } finally {
+      setIsLicenseStatusLoading(false);
     }
   }, []);
 
-  // Fetch user role from PHP session (this would typically be done on initial load or via a dedicated API endpoint)
-  // For now, we'll simulate fetching it from a global variable or a simple API call if available.
-  // In a real React app, you'd have an auth context providing this.
-  useEffect(() => {
-    // This is a placeholder. In a real app, you'd fetch this from your backend.
-    // For example, if your PHP backend exposes a /api.php?action=get_user_info endpoint
-    // that returns { role: 'admin' | 'user' }.
-    const fetchUserRole = async () => {
-      try {
-        const response = await fetch('/api.php?action=get_user_info'); // Assuming this endpoint exists
-        if (response.ok) {
-          const data = await response.json();
-          setUserRole(data.role);
-        } else {
-          // Fallback to 'user' if not logged in or endpoint not found
-          setUserRole('user');
-        }
-      } catch (error) {
-        console.error("Failed to fetch user role:", error);
-        setUserRole('user'); // Default to 'user' on error
+  const fetchUserRole = useCallback(async () => {
+    setIsUserRoleLoading(true);
+    try {
+      const response = await fetch('/api.php?action=get_user_info'); 
+      if (response.ok) {
+        const data = await response.json();
+        setUserRole(data.role);
+      } else {
+        setUserRole('user');
       }
-    };
-    fetchUserRole();
+    } catch (error) {
+      console.error("Failed to fetch user role:", error);
+      setUserRole('user'); 
+    } finally {
+      setIsUserRoleLoading(false);
+    }
   }, []);
 
+  const isAdmin = useMemo(() => userRole === "admin", [userRole]);
+  const isAppLoading = isUserRoleLoading || isLicenseStatusLoading;
 
   useEffect(() => {
+    fetchUserRole();
     fetchLicenseStatus();
-  }, [fetchLicenseStatus]);
+  }, [fetchUserRole, fetchLicenseStatus]);
+
+  useEffect(() => {
+    // Fetch dashboard data only after we know the license status and user role
+    if (!isAppLoading) {
+      fetchDashboardData();
+      fetchMaps();
+    }
+  }, [isAppLoading, fetchDashboardData, fetchMaps]);
+
+  // Update URL hash when tab changes
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    window.location.hash = value;
+  };
+
+  // Listen for hash changes (e.g., back button)
+  useEffect(() => {
+    const handleHashChange = () => {
+      setActiveTab(getInitialTab());
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  if (isAppLoading) {
+    return (
+      <div className="flex w-full flex-col items-center justify-center min-h-[80vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+        <p className="text-lg text-muted-foreground">Loading application data...</p>
+        <p className="text-sm text-muted-foreground mt-2">Fetching user permissions and license status.</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto p-4">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <Network className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold">Local Network Monitor</h1>
-          </div>
-        </div>
+    <div className="flex w-full flex-col">
+      <div className="flex-1 space-y-4 p-4 pt-6 sm:p-8">
+        {/* Temporary debug display for user role */}
+        {/* <div className="bg-blue-500/20 text-blue-300 p-2 rounded-md text-sm mb-4">
+          Debug: Current User Role is <span className="font-bold capitalize">{userRole}</span>
+        </div> */}
 
-        <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className="mb-4">
-            <TabsTrigger value="dashboard" className="flex items-center gap-2">
-              <Activity className="h-4 w-4" />
+        <Tabs value={activeTab} onValueChange={handleTabChange}>
+          <TabsList className="flex flex-wrap h-auto p-1">
+            <TabsTrigger value="dashboard">
+              <Activity className="mr-2 h-4 w-4" />
               Dashboard
             </TabsTrigger>
-            <TabsTrigger value="devices" className="flex items-center gap-2">
-              <Server className="h-4 w-4" />
+            <TabsTrigger value="devices">
+              <Server className="mr-2 h-4 w-4" />
               Devices
             </TabsTrigger>
-            <TabsTrigger value="ping" className="flex items-center gap-2">
-              <Wifi className="h-4 w-4" />
+            <TabsTrigger value="ping">
+              <Wifi className="mr-2 h-4 w-4" />
               Browser Ping
             </TabsTrigger>
-            <TabsTrigger value="server-ping" className="flex items-center gap-2">
-              <Server className="h-4 w-4" />
+            <TabsTrigger value="server-ping">
+              <Desktop className="mr-2 h-4 w-4" />
               Server Ping
             </TabsTrigger>
-            <TabsTrigger value="status" className="flex items-center gap-2">
-              <Network className="h-4 w-4" />
+            <TabsTrigger value="status">
+              <Network className="mr-2 h-4 w-4" />
               Network Status
             </TabsTrigger>
-            <TabsTrigger value="scanner" className="flex items-center gap-2">
-              <RefreshCw className="h-4 w-4" />
+            <TabsTrigger value="scanner">
+              <Search className="mr-2 h-4 w-4" />
               Network Scanner
             </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
+            <TabsTrigger value="history">
+              <History className="mr-2 h-4 w-4" />
               Ping History
             </TabsTrigger>
-            <TabsTrigger value="map" className="flex items-center gap-2">
-              <Network className="h-4 w-4" />
+            <TabsTrigger value="map">
+              <Map className="mr-2 h-4 w-4" />
               Network Map
             </TabsTrigger>
-            <TabsTrigger value="license" className="flex items-center gap-2">
-              <Key className="h-4 w-4" />
+            <TabsTrigger value="license">
+              <ShieldHalf className="mr-2 h-4 w-4" />
               License
             </TabsTrigger>
-            {userRole === 'admin' && ( // Conditionally render User Management tab
-              <TabsTrigger value="users" className="flex items-center gap-2">
-                <Users className="h-4 w-4" />
-                Users
-              </TabsTrigger>
+            <TabsTrigger value="products">
+              <BoxOpen className="mr-2 h-4 w-4" />
+              Products
+            </TabsTrigger>
+            {isAdmin && (
+              <>
+                <TabsTrigger value="users">
+                  <UserCog className="mr-2 h-4 w-4" />
+                  Users
+                </TabsTrigger>
+                <TabsTrigger value="maintenance">
+                  <Tools className="mr-2 h-4 w-4" />
+                  Maintenance
+                </TabsTrigger>
+              </>
             )}
           </TabsList>
 
@@ -139,7 +227,7 @@ const MainApp = () => {
               devices={devices}
               dashboardStats={dashboardStats}
               recentActivity={recentActivity}
-              isLoading={isLoading}
+              isLoading={isDashboardLoading}
               fetchMaps={fetchMaps}
               fetchDashboardData={fetchDashboardData}
               licenseStatus={licenseStatus}
@@ -154,7 +242,7 @@ const MainApp = () => {
                 <CardDescription>Monitor the status of devices on your local network</CardDescription>
               </CardHeader>
               <CardContent>
-                {isLoading ? (
+                {isDashboardLoading ? (
                   <div className="space-y-4">
                     {[...Array(5)].map((_, i) => (
                       <Skeleton key={i} className="h-16 w-full rounded-lg" />
@@ -230,10 +318,10 @@ const MainApp = () => {
 
           <TabsContent value="map">
             <div className="flex items-center gap-2 mb-4">
-              <label htmlFor="map-select" className="text-sm font-medium">Select Map:</label>
+              <label htmlFor="map-select" className="text-sm font-medium text-muted-foreground">Select Map:</label>
               <select
                 id="map-select"
-                className="flex h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                 value={currentMapId || ''}
                 onChange={(e) => setCurrentMapId(e.target.value)}
               >
@@ -258,7 +346,7 @@ const MainApp = () => {
                 mapId={currentMapId} 
                 canAddDevice={licenseStatus.can_add_device}
                 licenseMessage={licenseStatus.license_message}
-                userRole={userRole} // Pass userRole to NetworkMap
+                userRole={userRole}
               />
             ) : (
               <Card className="h-[70vh] flex items-center justify-center">
@@ -273,10 +361,20 @@ const MainApp = () => {
           <TabsContent value="license">
             <LicenseManager licenseStatus={licenseStatus} fetchLicenseStatus={fetchLicenseStatus} />
           </TabsContent>
+          
+          <TabsContent value="products">
+            <Products />
+          </TabsContent>
 
-          {userRole === 'admin' && ( // Conditionally render UserManagement content
+          {isAdmin && (
             <TabsContent value="users">
               <UserManagement />
+            </TabsContent>
+          )}
+
+          {isAdmin && (
+            <TabsContent value="maintenance">
+              <Maintenance />
             </TabsContent>
           )}
         </Tabs>

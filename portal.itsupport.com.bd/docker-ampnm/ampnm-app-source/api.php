@@ -12,10 +12,11 @@ $pingActions = ['manual_ping', 'scan_network', 'ping_device', 'get_ping_history'
 $deviceActions = ['get_devices', 'create_device', 'update_device', 'delete_device', 'get_device_details', 'check_device', 'check_all_devices_globally', 'ping_all_devices', 'get_device_uptime', 'upload_device_icon', 'import_devices'];
 $mapActions = ['get_maps', 'create_map', 'delete_map', 'get_edges', 'create_edge', 'update_edge', 'delete_edge', 'import_map', 'update_map', 'upload_map_background'];
 $dashboardActions = ['get_dashboard_data'];
-$userActions = ['get_users', 'create_user', 'delete_user', 'update_user_role']; // Added update_user_role
+$userActions = ['get_users', 'create_user', 'delete_user', 'update_user_role'];
 $logActions = ['get_status_logs'];
 $notificationActions = ['get_smtp_settings', 'save_smtp_settings', 'get_device_subscriptions', 'save_device_subscription', 'delete_device_subscription', 'get_all_devices_for_subscriptions'];
 $authActions = ['get_license_status', 'force_license_recheck', 'update_app_license_key'];
+$maintenanceActions = ['docker_update']; // NEW
 
 if (in_array($action, $pingActions)) {
     require __DIR__ . '/api/handlers/ping_handler.php';
@@ -33,6 +34,8 @@ if (in_array($action, $pingActions)) {
     require __DIR__ . '/api/handlers/notification_handler.php';
 } elseif (in_array($action, $authActions)) {
     require __DIR__ . '/api/handlers/auth_handler.php';
+} elseif (in_array($action, $maintenanceActions)) { // NEW
+    require __DIR__ . '/api/handlers/maintenance_handler.php';
 } elseif ($action === 'health') {
     echo json_encode(['status' => 'ok', 'timestamp' => date('c')]);
 } else {

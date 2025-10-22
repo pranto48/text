@@ -17,18 +17,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['add_product']) || is
     $price = (float)($_POST['price'] ?? 0);
     $max_devices = (int)($_POST['max_devices'] ?? 1);
     $license_duration_days = (int)($_POST['license_duration_days'] ?? 365);
+    $category = trim($_POST['category'] ?? 'AMPNM'); // NEW: Get category
 
     if (empty($name) || $price <= 0 || $max_devices <= 0 || $license_duration_days <= 0) {
         $message = '<div class="alert-admin-error mb-4">All fields are required and must be positive values.</div>';
     } else {
         try {
             if ($product_id > 0) { // Edit existing product
-                $stmt = $pdo->prepare("UPDATE `products` SET name = ?, description = ?, price = ?, max_devices = ?, license_duration_days = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?");
-                $stmt->execute([$name, $description, $price, $max_devices, $license_duration_days, $product_id]);
+                $stmt = $pdo->prepare("UPDATE `products` SET name = ?, description = ?, price = ?, max_devices = ?, license_duration_days = ?, category = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?");
+                $stmt->execute([$name, $description, $price, $max_devices, $license_duration_days, $category, $product_id]);
                 $message = '<div class="alert-admin-success mb-4">Product updated successfully.</div>';
             } else { // Add new product
-                $stmt = $pdo->prepare("INSERT INTO `products` (name, description, price, max_devices, license_duration_days) VALUES (?, ?, ?, ?, ?)");
-                $stmt->execute([$name, $description, $price, $max_devices, $license_duration_days]);
+                $stmt = $pdo->prepare("INSERT INTO `products` (name, description, price, max_devices, license_duration_days, category) VALUES (?, ?, ?, ?, ?, ?)");
+                $stmt->execute([$name, $description, $price, $max_devices, $license_duration_days, $category]);
                 $message = '<div class="alert-admin-success mb-4">Product added successfully.</div>';
             }
         } catch (PDOException $e) {
@@ -73,6 +74,13 @@ admin_header("Manage Products");
             <textarea id="description" name="description" class="form-admin-input"></textarea>
         </div>
         <div>
+            <label for="category" class="block text-gray-300 text-sm font-bold mb-2">Category:</label>
+            <select id="category" name="category" class="form-admin-input" required>
+                <option value="AMPNM">AMPNM License</option>
+                <option value="Other">Other Application License</option>
+            </select>
+        </div>
+        <div>
             <label for="price" class="block text-gray-300 text-sm font-bold mb-2">Price ($):</label>
             <input type="number" id="price" name="price" step="0.01" min="0.01" class="form-admin-input" required>
         </div>
@@ -101,6 +109,7 @@ admin_header("Manage Products");
                     <tr class="bg-gray-600 text-gray-200 uppercase text-sm leading-normal">
                         <th class="py-3 px-6 text-left">ID</th>
                         <th class="py-3 px-6 text-left">Name</th>
+                        <th class="py-3 px-6 text-left">Category</th>
                         <th class="py-3 px-6 text-left">Price</th>
                         <th class="py-3 px-6 text-left">Max Devices</th>
                         <th class="py-3 px-6 text-left">Duration (Days)</th>
@@ -112,25 +121,7 @@ admin_header("Manage Products");
                         <tr class="border-b border-gray-600 hover:bg-gray-600">
                             <td class="py-3 px-6 text-left whitespace-nowrap"><?= htmlspecialchars($product['id']) ?></td>
                             <td class="py-3 px-6 text-left"><?= htmlspecialchars($product['name']) ?></td>
-                            <td class="py-3 px-6 text-left">$<?= htmlspecialchars(number_format($product['price'], 2)) ?></td>
-                            <td class="py-3 px-6 text-left"><?= htmlspecialchars($product['max_devices']) ?></td>
-                            <td class="py-3 px-6 text-left"><?= htmlspecialchars($product['license_duration_days']) ?></td>
-                            <td class="py-3 px-6 text-center">
-                                <button onclick="openEditProductModal(<?= htmlspecialchars(json_encode($product)) ?>)" class="btn-admin-primary text-xs px-3 py-1 mr-2">
-                                    <i class="fas fa-edit mr-1"></i>Edit
-                                </button>
-                                <form action="products.php" method="POST" onsubmit="return confirm('Are you sure you want to delete this product? This will fail if licenses are linked.');" class="inline-block">
-                                    <input type="hidden" name="product_id" value="<?= htmlspecialchars($product['id']) ?>">
-                                    <button type="submit" name="delete_product" class="btn-admin-danger text-xs px-3 py-1">
-                                        <i class="fas fa-trash-alt mr-1"></i>Delete
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    <?php foreach ($products as $product): ?>
-                        <tr class="border-b border-gray-600 hover:bg-gray-600">
-                            <td class="py-3 px-6 text-left whitespace-nowrap"><?= htmlspecialchars($product['id']) ?></td>
-                            <td class="py-3 px-6 text-left"><?= htmlspecialchars($product['name']) ?></td>
+                            <td class="py-3 px-6 text-left"><?= htmlspecialchars($product['category'] ?? 'N/A') ?></td>
                             <td class="py-3 px-6 text-left">$<?= htmlspecialchars(number_format($product['price'], 2)) ?></td>
                             <td class="py-3 px-6 text-left"><?= htmlspecialchars($product['max_devices']) ?></td>
                             <td class="py-3 px-6 text-left"><?= htmlspecialchars($product['license_duration_days']) ?></td>
@@ -168,6 +159,13 @@ admin_header("Manage Products");
                 <textarea id="edit_description" name="description" class="form-admin-input"></textarea>
             </div>
             <div>
+                <label for="edit_category" class="block text-gray-300 text-sm font-bold mb-2">Category:</label>
+                <select id="edit_category" name="category" class="form-admin-input" required>
+                    <option value="AMPNM">AMPNM License</option>
+                    <option value="Other">Other Application License</option>
+                </select>
+            </div>
+            <div>
                 <label for="edit_price" class="block text-gray-300 text-sm font-bold mb-2">Price ($):</label>
                 <input type="number" id="edit_price" name="price" step="0.01" min="0.01" class="form-admin-input" required>
             </div>
@@ -192,6 +190,7 @@ admin_header("Manage Products");
         document.getElementById('edit_product_id').value = product.id;
         document.getElementById('edit_name').value = product.name;
         document.getElementById('edit_description').value = product.description;
+        document.getElementById('edit_category').value = product.category || 'AMPNM'; // Set category
         document.getElementById('edit_price').value = product.price;
         document.getElementById('edit_max_devices').value = product.max_devices;
         document.getElementById('edit_license_duration_days').value = product.license_duration_days;

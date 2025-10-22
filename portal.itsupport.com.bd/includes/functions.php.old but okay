@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Include database configuration
-require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../config.php'; // Adjusted path to config.php
 
 // Function to get database connection (defined in config.php)
 // function getLicenseDbConnection() is already defined in config.php
@@ -22,6 +22,21 @@ function checkLicenseDbConnection() {
     }
 }
 
+// Helper function to check if a table exists in the current database connection
+function tableExists($pdo, $tableName) {
+    try {
+        $result = $pdo->query("SELECT 1 FROM `$tableName` LIMIT 1");
+    } catch (PDOException $e) {
+        // We only care about "table not found" errors
+        if (strpos($e->getMessage(), 'Base table or view not found') !== false) {
+            return false;
+        }
+        // For other errors, re-throw or log
+        throw $e;
+    }
+    return $result !== false;
+}
+
 // Function to generate a unique license key
 function generateLicenseKey($prefix = 'AMPNM') {
     // Generate a UUID (Universally Unique Identifier)
@@ -31,6 +46,26 @@ function generateLicenseKey($prefix = 'AMPNM') {
     $data[8] = chr(ord(ord($data[8]) & 0x3f | 0x80)); // set bits 6-7 to 10
     $uuid = vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
     return strtoupper($prefix . '-' . $uuid);
+}
+
+// --- Application Settings Functions ---
+function getAppLicenseKey() {
+    $pdo = getDbConnection();
+    // Check if app_settings table exists before querying
+    if (!tableExists($pdo, 'app_settings')) {
+        return null;
+    }
+    $stmt = $pdo->prepare("SELECT setting_value FROM `app_settings` WHERE setting_key = 'app_license_key'");
+    $stmt->execute();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result ? $result['setting_value'] : null;
+}
+
+function setAppLicenseKey($license_key) {
+    $pdo = getDbConnection();
+    // Use UPSERT (INSERT ... ON DUPLICATE KEY UPDATE) to either insert or update the key
+    $stmt = $pdo->prepare("INSERT INTO `app_settings` (setting_key, setting_value) VALUES ('app_license_key', ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+    return $stmt->execute([$license_key, $license_key]);
 }
 
 // --- Customer Authentication Functions ---
@@ -61,6 +96,33 @@ function logoutCustomer() {
     session_start(); // Start a new session for potential new login
 }
 
+/**
+ * Updates a customer's password.
+ *
+ * @param int $customer_id The ID of the customer.
+ * @param string $current_password The current password provided by the customer.
+ * @param string $new_password The new password to set.
+ * @return bool True on success, false on failure (e.g., current password mismatch).
+ */
+function updateCustomerPassword($customer_id, $current_password, $new_password) {
+    $pdo = getLicenseDbConnection();
+    
+    // First, verify the current password
+    $stmt = $pdo->prepare("SELECT password FROM `customers` WHERE id = ?");
+    $stmt->execute([$customer_id]);
+    $customer = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$customer || !password_verify($current_password, $customer['password'])) {
+        return false; // Current password mismatch
+    }
+
+    // Hash the new password and update
+    $hashed_new_password = password_hash($new_password, PASSWORD_DEFAULT);
+    $stmt = $pdo->prepare("UPDATE `customers` SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?");
+    return $stmt->execute([$hashed_new_password, $customer_id]);
+}
+
+
 // --- Admin Authentication Functions ---
 function authenticateAdmin($username, $password) {
     $pdo = getLicenseDbConnection();
@@ -88,6 +150,33 @@ function logoutAdmin() {
     session_destroy();
     session_start(); // Start a new session for potential new login
 }
+
+/**
+ * Updates an admin user's password.
+ *
+ * @param int $admin_id The ID of the admin user.
+ * @param string $current_password The current password provided by the admin.
+ * @param string $new_password The new password to set.
+ * @return bool True on success, false on failure (e.g., current password mismatch).
+ */
+function updateAdminPassword($admin_id, $current_password, $new_password) {
+    $pdo = getLicenseDbConnection();
+    
+    // First, verify the current password
+    $stmt = $pdo->prepare("SELECT password FROM `admin_users` WHERE id = ?");
+    $stmt->execute([$admin_id]);
+    $admin = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$admin || !password_verify($current_password, $admin['password'])) {
+        return false; // Current password mismatch
+    }
+
+    // Hash the new password and update
+    $hashed_new_password = password_hash($new_password, PASSWORD_DEFAULT);
+    $stmt = $pdo->prepare("UPDATE `admin_users` SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?");
+    return $stmt->execute([$hashed_new_password, $admin_id]);
+}
+
 
 // --- Common Redirects ---
 function redirectToLogin() {
@@ -229,8 +318,8 @@ function getDockerfileContent() {
         "    libicu-dev \\",
         "    libonig-dev \\",
         "    libxml2-dev \\",
-        "    nmap \\", 
-        "    mariadb-client-compat \\", # Changed from mysql-client to mariadb-client-compat
+        "    nmap \\",
+        "    mysql-client \\", # Added mysql-client for mysqldump/mysql commands
         "    && rm -rf /var/lib/apt/lists/*",
         "",
         "# Install PHP extensions",
@@ -299,7 +388,7 @@ services:
       - MYSQL_ROOT_PASSWORD=rootpassword
       - ADMIN_PASSWORD=password
       - LICENSE_API_URL={$license_api_url}
-      - APP_LICENSE_KEY={$license_key}
+      # APP_LICENSE_KEY is no longer set here. It is configured via the web UI after initial setup.
     ports:
       - "2266:2266" # Main app will now run on port 2266
     restart: unless-stopped
@@ -318,7 +407,7 @@ services:
       - "3306:3306"
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p\$$MYSQL_ROOT_PASSWORD"] # Corrected to single $
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p\$\$MYSQL_ROOT_PASSWORD"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -406,7 +495,8 @@ function portal_header($title = "IT Support BD Portal") {
         'products.php' => 'Products',
         'dashboard.php' => 'Dashboard',
         'support.php' => '<i class="fas fa-headset mr-1"></i> Support',
-        'profile.php' => '<i class="fas fa-user-circle mr-1"></i> Profile', // Added Profile link
+        'profile.php' => '<i class="fas fa-user-circle mr-1"></i> Profile',
+        'change_password.php' => '<i class="fas fa-key mr-1"></i> Change Password', // Added Change Password link
         'cart.php' => '<i class="fas fa-shopping-cart mr-1"></i> Cart',
     ];
 
@@ -464,10 +554,12 @@ function admin_header($title = "Admin Panel") {
     
     $admin_nav_links = [
         'index.php' => 'Dashboard',
+        'orders.php' => '<i class="fas fa-shopping-bag mr-1"></i> Orders', // NEW ORDERS LINK
         'users.php' => 'Customers',
         'license-manager.php' => 'Licenses',
         'products.php' => 'Products',
         'tickets.php' => '<i class="fas fa-headset mr-1"></i> Tickets', // New Admin Tickets link
+        'change_password.php' => '<i class="fas fa-key mr-1"></i> Change Password', // New Admin Password Change link
     ];
 
     if (isAdminLoggedIn()) {

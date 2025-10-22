@@ -5,9 +5,6 @@
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <script src="assets/js/shared.js"></script>
-    <script src="assets/js/dashboard.js"></script>
-    <script src="assets/js/devices.js"></script>
-    <script src="assets/js/history.js"></script>
     
     <!-- Modular Map Scripts -->
     <script src="assets/js/map/config.js"></script>
@@ -21,6 +18,9 @@
     <script src="assets/js/map/network.js"></script>
     <script src="assets/js/map.js"></script>
     
+    <script src="assets/js/dashboard.js"></script>
+    <script src="assets/js/devices.js"></script>
+    <script src="assets/js/history.js"></script>
     <script src="assets/js/users.js"></script>
     <script src="assets/js/status_logs.js"></script>
     <script src="assets/js/email_notifications.js"></script>
@@ -39,35 +39,7 @@
             ]
         });
 
-        const page = '<?php echo basename($_SERVER['PHP_SELF']); ?>';
-        
-        // Set active nav link
-        const navLinks = document.querySelectorAll('#main-nav a');
-        navLinks.forEach(link => {
-            const linkPage = link.getAttribute('href');
-            if (linkPage === page || (page === 'index.php' && linkPage === '/')) {
-                link.classList.add('bg-slate-700', 'text-white');
-            }
-        });
-
-        // Initialize page-specific JS
-        if (page === 'index.php') {
-            initDashboard();
-        } else if (page === 'devices.php') {
-            initDevices();
-        } else if (page === 'history.php') {
-            initHistory();
-        } else if (page === 'map.php') {
-            initMap();
-        } else if (page === 'users.php') {
-            initUsers();
-        } else if (page === 'status_logs.php') {
-            initStatusLogs();
-        } else if (page === 'email_notifications.php') {
-            initEmailNotifications();
-        } else if (page === 'licenses.php') {
-            initLicenses();
-        }
+        // The rest of the initialization is now handled by the React application in src/main.tsx
     });
     </script>
 </body>

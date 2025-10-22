@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Activity, Wifi, Server, Clock, RefreshCw, Network, WifiOff } from "lucide-react";
+import { Activity, Wifi, Server, Clock, RefreshCw, Network, WifiOff, ShieldHalf, BoxOpen, UserCog, Tools } from "lucide-react";
 import { showSuccess, showError, showLoading, dismissToast } from "@/utils/toast";
 import {
   NetworkDevice,
@@ -159,7 +159,7 @@ const DashboardContent = ({
         {isLoading || !dashboardStats ? (
           <>
             {[...Array(4)].map((_, i) => (
-              <Card key={i}>
+              <Card key={i} className="bg-card border-border">
                 <CardHeader>
                   <Skeleton className="h-4 w-3/4" />
                 </CardHeader>
@@ -171,53 +171,53 @@ const DashboardContent = ({
           </>
         ) : (
           <>
-            <Card>
+            <Card className="bg-card border-border">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Internet Status</CardTitle>
                 <Activity className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{networkStatus ? "Online" : "Offline"}</div>
+                <div className="text-2xl font-bold text-primary">{networkStatus ? "Online" : "Offline"}</div>
                 <p className="text-xs text-muted-foreground">Internet connectivity</p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-card border-border">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Last Check</CardTitle>
                 <Clock className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{lastChecked.toLocaleTimeString()}</div>
+                <div className="text-2xl font-bold text-foreground">{lastChecked.toLocaleTimeString()}</div>
                 <p className="text-xs text-muted-foreground">Last status check</p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-card border-border">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Devices Online</CardTitle>
                 <Wifi className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{dashboardStats.online}/{dashboardStats.total}</div>
+                <div className="text-2xl font-bold text-green-500">{dashboardStats.online}/{dashboardStats.total}</div>
                 <p className="text-xs text-muted-foreground">Devices online</p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-card border-border">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Device Status</CardTitle>
                 <Server className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
-                  <Badge variant="default" className="text-xs">
+                  <Badge variant="default" className="text-xs bg-green-500/20 text-green-400">
                     Online {dashboardStats.online}
                   </Badge>
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge variant="secondary" className="text-xs bg-yellow-500/20 text-yellow-400">
                     Warning {dashboardStats.warning}
                   </Badge>
-                  <Badge variant="destructive" className="text-xs">
+                  <Badge variant="destructive" className="text-xs bg-red-500/20 text-red-400">
                     Critical {dashboardStats.critical}
                   </Badge>
-                  <Badge variant="destructive" className="text-xs">
+                  <Badge variant="destructive" className="text-xs bg-gray-500/20 text-gray-400">
                     Offline {dashboardStats.offline}
                   </Badge>
                 </div>
@@ -227,10 +227,10 @@ const DashboardContent = ({
         )}
       </div>
 
-      <Card>
+      <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 text-primary">
               <Network className="h-5 w-5" />Quick Actions
             </div>
             <div className="flex items-center gap-2">
@@ -246,13 +246,14 @@ const DashboardContent = ({
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-4">
-          <Button onClick={checkNetworkStatus} variant="outline">
+          <Button onClick={checkNetworkStatus} variant="outline" className="bg-secondary hover:bg-secondary/80 text-foreground border-border">
             <RefreshCw className="h-4 w-4 mr-2" />Check Internet
           </Button>
           <Button
             onClick={handleCheckAllDevices}
             disabled={isCheckingDevices || isLoading}
             variant="outline"
+            className="bg-secondary hover:bg-secondary/80 text-foreground border-border"
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${isCheckingDevices ? 'animate-spin' : ''}`} />
             {isCheckingDevices ? 'Checking...' : 'Check All Devices'}
@@ -261,15 +262,16 @@ const DashboardContent = ({
             onClick={handleRefreshLicense}
             disabled={isRefreshingLicense}
             variant="outline"
+            className="bg-secondary hover:bg-secondary/80 text-foreground border-border"
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshingLicense ? 'animate-spin' : ''}`} />
             {isRefreshingLicense ? 'Refreshing...' : 'Refresh License'}
           </Button>
           <div className="flex items-center gap-2">
-            <label htmlFor="map-select" className="text-sm font-medium">Select Map:</label>
+            <label htmlFor="map-select" className="text-sm font-medium text-muted-foreground">Select Map:</label>
             <select
               id="map-select"
-              className="flex h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
               value={currentMapId || ''}
               onChange={(e) => setCurrentMapId(e.target.value)}
             >
@@ -283,16 +285,16 @@ const DashboardContent = ({
                 ))
               )}
             </select>
-            <Button onClick={fetchMaps} variant="outline" size="sm">
+            <Button onClick={fetchMaps} variant="outline" size="sm" className="bg-secondary hover:bg-secondary/80 text-foreground border-border">
               <RefreshCw className="h-4 w-4" />
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-primary">
             <Clock className="h-5 w-5" />Recent Activity
           </CardTitle>
           <CardDescription>Latest status changes and events across your network.</CardDescription>
@@ -306,7 +308,7 @@ const DashboardContent = ({
           ) : (
             <div className="space-y-4">
               {recentActivity.map((activity, index) => (
-                <div key={index} className="flex items-center justify-between p-4 border rounded-lg transition-colors hover:bg-muted">
+                <div key={index} className="flex items-center justify-between p-4 border rounded-lg transition-colors hover:bg-secondary bg-background border-border">
                   <div className="flex items-center gap-3">
                     <Server className="h-5 w-5 text-muted-foreground" />
                     <div>

@@ -33,7 +33,7 @@ export const EdgeEditorDialog = ({ isOpen, onClose, onSave, edge }: EdgeEditorDi
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] bg-card text-foreground">
         <DialogHeader>
           <DialogTitle>Edit Connection</DialogTitle>
           <DialogDescription>
@@ -46,12 +46,12 @@ export const EdgeEditorDialog = ({ isOpen, onClose, onSave, edge }: EdgeEditorDi
               Type
             </Label>
             <Select value={selectedType} onValueChange={setSelectedType}>
-              <SelectTrigger id="connection-type" className="col-span-3">
+              <SelectTrigger id="connection-type" className="col-span-3 bg-background border-border text-foreground">
                 <SelectValue placeholder="Select a type" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-card text-foreground border-border">
                 {connectionTypes.map((type) => (
-                  <SelectItem key={type} value={type} className="capitalize">
+                  <SelectItem key={type} value={type} className="capitalize hover:bg-secondary">
                     {type}
                   </SelectItem>
                 ))}
@@ -63,7 +63,7 @@ export const EdgeEditorDialog = ({ isOpen, onClose, onSave, edge }: EdgeEditorDi
           <Button type="button" variant="ghost" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="button" onClick={handleSave}>
+          <Button type="button" onClick={handleSave} className="bg-primary hover:bg-primary/90 text-primary-foreground">
             Save
           </Button>
         </DialogFooter>

@@ -21,8 +21,8 @@ function sendEmailNotification($pdo, $device, $oldStatus, $newStatus, $details) 
     }
 
     // Fetch subscriptions for this device and status change
-    $sqlSubscriptions = "SELECT recipient_email FROM device_email_subscriptions WHERE device_id = ? AND user_id = ?";
-    $paramsSubscriptions = [$device['id'], $_SESSION['user_id']];
+    $sqlSubscriptions = "SELECT recipient_email FROM device_email_subscriptions WHERE user_id = ? AND device_id = ?";
+    $paramsSubscriptions = [$_SESSION['user_id'], $device['id']];
 
     if ($newStatus === 'online') {
         $sqlSubscriptions .= " AND notify_on_online = TRUE";

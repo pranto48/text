@@ -44,13 +44,13 @@ portal_header("Login - IT Support BD Portal");
             <div>
                 <label for="email" class="sr-only">Email address</label>
                 <input id="email" name="email" type="email" autocomplete="email" required
-                       class="form-glass-input relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+                       class="form-glass-input"
                        placeholder="Email address" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
             </div>
             <div>
                 <label for="password" class="sr-only">Password</label>
                 <input id="password" name="password" type="password" autocomplete="current-password" required
-                       class="form-glass-input relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+                       class="form-glass-input"
                        placeholder="Password">
             </div>
             

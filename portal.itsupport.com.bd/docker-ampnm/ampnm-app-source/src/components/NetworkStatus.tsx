@@ -65,10 +65,10 @@ const NetworkStatus = () => {
 
   return (
     <div className="space-y-4">
-      <Card>
+      <Card className="bg-card text-foreground border-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Server className="h-5 w-5" />
+            <Server className="h-5 w-5 text-primary" />
             Network Status History
           </CardTitle>
           <CardDescription>
@@ -77,27 +77,27 @@ const NetworkStatus = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <Card>
+            <Card className="bg-background border-border">
               <CardContent className="pt-6">
                 <div className="text-2xl font-bold text-green-600">{successCount}</div>
                 <p className="text-sm text-muted-foreground">Successful Checks</p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-background border-border">
               <CardContent className="pt-6">
                 <div className="text-2xl font-bold text-red-600">{failureCount}</div>
                 <p className="text-sm text-muted-foreground">Failed Checks</p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-background border-border">
               <CardContent className="pt-6">
-                <div className="text-2xl font-bold">{uptimePercentage}%</div>
+                <div className="text-2xl font-bold text-primary">{uptimePercentage}%</div>
                 <p className="text-sm text-muted-foreground">Uptime</p>
               </CardContent>
             </Card>
           </div>
 
-          <Button onClick={() => checkNetwork("manual")} disabled={isChecking} className="mb-4">
+          <Button onClick={() => checkNetwork("manual")} disabled={isChecking} className="mb-4 bg-primary hover:bg-primary/90 text-primary-foreground">
             <RefreshCw className="h-4 w-4 mr-2" />
             {isChecking ? "Checking..." : "Check Network Now"}
           </Button>
@@ -106,7 +106,7 @@ const NetworkStatus = () => {
             <div className="space-y-2">
               <h3 className="text-sm font-medium">Recent Checks</h3>
               {networkChecks.map((check, index) => (
-                <div key={index} className="flex items-center justify-between p-2 border rounded">
+                <div key={index} className="flex items-center justify-between p-2 border rounded bg-background border-border">
                   <div className="flex items-center gap-2">
                     {check.status ? (
                       <Wifi className="h-4 w-4 text-green-500" />

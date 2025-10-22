@@ -3,98 +3,116 @@
 
 body {
     font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); /* Vibrant gradient background */
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%); /* Darker, more professional gradient */
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    color: #e0e0e0; /* Light text for dark/vibrant background */
+    color: #e2e8f0; /* Light text for dark background */
 }
 
 /* Glassmorphism effect for cards and main containers */
 .glass-card {
-    background: rgba(255, 255, 255, 0.15); /* Semi-transparent white */
-    backdrop-filter: blur(10px); /* Blur effect */
-    border: 1px solid rgba(255, 255, 255, 0.2); /* Subtle border */
+    background: rgba(24, 30, 42, 0.6); /* Darker, more opaque glass */
+    backdrop-filter: blur(12px); /* Stronger blur effect */
+    border: 1px solid rgba(71, 85, 105, 0.4); /* Subtle border */
     border-radius: 15px;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); /* Lifted shadow */
+    box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.4); /* Lifted shadow */
     transition: all 0.3s ease-in-out; /* Smooth transitions */
 }
 
 .glass-card:hover {
-    transform: translateY(-5px); /* Subtle lift on hover */
-    box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.45);
+    transform: translateY(-7px); /* More pronounced lift on hover */
+    box-shadow: 0 15px 50px 0 rgba(0, 0, 0, 0.5);
 }
 
 /* Navbar specific glass effect */
 .glass-navbar {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(8px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 4px 15px 0 rgba(0, 0, 0, 0.2);
+    background: rgba(24, 30, 42, 0.7); /* Darker, more opaque */
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+    box-shadow: 0 5px 20px 0 rgba(0, 0, 0, 0.3);
 }
 
 /* Buttons with modern styling and animations */
 .btn-glass-primary {
-    @apply bg-blue-500 text-white font-semibold py-2 px-6 rounded-full shadow-lg;
-    background: linear-gradient(45deg, #4a90e2, #50e3c2); /* Gradient for primary */
+    @apply text-white font-semibold py-2 px-6 rounded-full shadow-lg;
+    background: linear-gradient(45deg, #4a90e2, #50e3c2); /* Vibrant blue-green gradient */
     transition: all 0.3s ease-in-out;
     border: none;
+    position: relative;
+    overflow: hidden;
 }
 
 .btn-glass-primary:hover {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-    opacity: 0.9;
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    opacity: 0.95;
+}
+
+.btn-glass-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 0.4s ease-in-out;
+    transform: skewX(-20deg);
+}
+
+.btn-glass-primary:hover::before {
+    left: 100%;
 }
 
 .btn-glass-secondary {
-    @apply bg-gray-600 text-white font-semibold py-2 px-6 rounded-full shadow-md;
-    background: rgba(255, 255, 255, 0.2);
+    @apply text-white font-semibold py-2 px-6 rounded-full shadow-md;
+    background: rgba(71, 85, 105, 0.3); /* Muted dark blue-gray */
     transition: all 0.3s ease-in-out;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(71, 85, 105, 0.5);
 }
 
 .btn-glass-secondary:hover {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    background: rgba(71, 85, 105, 0.5);
 }
 
 /* Form inputs with glass effect */
 .form-glass-input {
-    @apply w-full py-2 px-4 rounded-lg text-white placeholder-gray-300;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    @apply w-full py-2 px-4 rounded-lg text-white placeholder-gray-400;
+    background: rgba(71, 85, 105, 0.2); /* Darker input background */
+    border: 1px solid rgba(71, 85, 105, 0.4);
     backdrop-filter: blur(5px);
     transition: all 0.3s ease-in-out;
 }
 
 .form-glass-input:focus {
     outline: none;
-    border-color: rgba(255, 255, 255, 0.5);
-    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.5); /* Blue glow on focus */
+    border-color: rgba(74, 144, 226, 0.7); /* Blue glow on focus */
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.3);
 }
 
 /* Alert messages */
 .alert-glass-success {
     @apply p-4 rounded-lg text-green-100;
-    background: rgba(76, 175, 80, 0.3); /* Greenish transparent */
+    background: rgba(34, 197, 94, 0.3); /* Greenish transparent */
     backdrop-filter: blur(5px);
-    border: 1px solid rgba(76, 175, 80, 0.5);
+    border: 1px solid rgba(34, 197, 94, 0.5);
 }
 
 .alert-glass-error {
     @apply p-4 rounded-lg text-red-100;
-    background: rgba(244, 67, 54, 0.3); /* Reddish transparent */
+    background: rgba(239, 68, 68, 0.3); /* Reddish transparent */
     backdrop-filter: blur(5px);
-    border: 1px solid rgba(244, 67, 54, 0.5);
+    border: 1px solid rgba(239, 68, 68, 0.5);
 }
 
 .alert-glass-warning {
     @apply p-4 rounded-lg text-yellow-100;
-    background: rgba(255, 193, 7, 0.3); /* Yellowish transparent */
+    background: rgba(250, 204, 21, 0.3); /* Yellowish transparent */
     backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 193, 7, 0.5);
+    border: 1px solid rgba(250, 204, 21, 0.5);
 }
 
 /* Icons and text colors */
@@ -157,13 +175,15 @@ body {
 
 /* Admin Panel Specific Styles (Dark Theme) */
 .admin-body {
-    background: #1a202c; /* Dark background */
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%); /* Consistent dark gradient */
     color: #e2e8f0; /* Light text */
 }
 
 .admin-navbar {
-    background: #2d3748; /* Slightly lighter dark for navbar */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    background: rgba(24, 30, 42, 0.7); /* Darker, more opaque */
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+    box-shadow: 0 5px 20px 0 rgba(0, 0, 0, 0.3);
 }
 
 .admin-nav-link {
@@ -176,15 +196,17 @@ body {
 }
 
 .admin-card {
-    background: #2d3748; /* Dark card background */
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    background: rgba(24, 30, 42, 0.6); /* Darker, more opaque glass */
+    backdrop-filter: blur(12px); /* Stronger blur effect */
+    border: 1px solid rgba(71, 85, 105, 0.4); /* Subtle border */
+    border-radius: 15px;
+    box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.4); /* Lifted shadow */
 }
 
 .form-admin-input {
     @apply w-full py-2 px-3 rounded-md text-gray-100 placeholder-gray-400;
-    background: #4a5568; /* Darker input background */
-    border: 1px solid #4a5568;
+    background: rgba(71, 85, 105, 0.2); /* Darker input background */
+    border: 1px solid rgba(71, 85, 105, 0.4);
     transition: all 0.2s ease-in-out;
 }
 
@@ -195,19 +217,45 @@ body {
 }
 
 .btn-admin-primary {
-    @apply bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md;
+    @apply text-white font-bold py-2 px-4 rounded-md;
+    background: linear-gradient(45deg, #4a90e2, #50e3c2); /* Vibrant blue-green gradient */
     transition: all 0.2s ease-in-out;
+    border: none;
+}
+.btn-admin-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    opacity: 0.9;
 }
 
 .btn-admin-danger {
-    @apply bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md;
+    @apply text-white font-bold py-2 px-4 rounded-md;
+    background: linear-gradient(45deg, #ef4444, #f87171); /* Red gradient */
     transition: all 0.2s ease-in-out;
+    border: none;
+}
+.btn-admin-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    opacity: 0.9;
+}
+
+.btn-admin-secondary {
+    @apply text-white font-bold py-2 px-4 rounded-md;
+    background: rgba(71, 85, 105, 0.3); /* Muted dark blue-gray */
+    transition: all 0.2s ease-in-out;
+    border: 1px solid rgba(71, 85, 105, 0.5);
+}
+.btn-admin-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    background: rgba(71, 85, 105, 0.5);
 }
 
 .alert-admin-success {
-    @apply bg-green-700 text-white px-4 py-3 rounded relative;
+    @apply bg-green-700/30 text-green-200 px-4 py-3 rounded relative border border-green-600/50;
 }
 
 .alert-admin-error {
-    @apply bg-red-700 text-white px-4 py-3 rounded relative;
+    @apply bg-red-700/30 text-red-200 px-4 py-3 rounded relative border border-red-600/50;
 }

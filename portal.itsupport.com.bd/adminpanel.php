@@ -46,13 +46,13 @@ admin_header("Admin Login");
             <div>
                 <label for="username" class="sr-only">Username</label>
                 <input id="username" name="username" type="text" autocomplete="username" required
-                       class="form-admin-input relative block w-full appearance-none rounded-md border border-gray-600 px-3 py-2 text-gray-100 placeholder-gray-400 focus:z-10 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+                       class="form-admin-input"
                        placeholder="Username" value="<?= htmlspecialchars($_POST['username'] ?? '') ?>">
             </div>
             <div>
                 <label for="password" class="sr-only">Password</label>
                 <input id="password" name="password" type="password" autocomplete="current-password" required
-                       class="form-admin-input relative block w-full appearance-none rounded-md border border-gray-600 px-3 py-2 text-gray-100 placeholder-gray-400 focus:z-10 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+                       class="form-admin-input"
                        placeholder="Password">
             </div>
             

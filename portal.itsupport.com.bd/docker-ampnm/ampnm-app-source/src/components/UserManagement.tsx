@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Users, UserPlus, Edit, Trash2, RefreshCw } from "lucide-react";
 import { showSuccess, showError, showLoading, dismissToast } from "@/utils/toast";
 import { getUsers, createUser, updateUserRole, deleteUser, User } from "@/services/networkDeviceService";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const UserManagement = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -15,6 +17,7 @@ const UserManagement = () => {
   const [newUserRole, setNewUserRole] = useState<User['role']>('user');
   const [isCreatingUser, setIsCreatingUser] = useState(false);
   const [isLoadingUsers, setIsLoadingUsers] = useState(true);
+  const currentUser = useCurrentUser();
 
   const fetchUsers = useCallback(async () => {
     setIsLoadingUsers(true);
@@ -100,9 +103,9 @@ const UserManagement = () => {
 
   return (
     <div className="space-y-4">
-      <Card>
+      <Card className="bg-card text-foreground border-border">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-primary">
             <Users className="h-5 w-5" />
             User Management
           </CardTitle>
@@ -114,7 +117,7 @@ const UserManagement = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Create New User Form */}
             <div className="lg:col-span-1">
-              <Card>
+              <Card className="bg-background border-border">
                 <CardHeader>
                   <CardTitle className="text-lg">Create New User</CardTitle>
                 </CardHeader>
@@ -126,6 +129,7 @@ const UserManagement = () => {
                       value={newUsername}
                       onChange={(e) => setNewUsername(e.target.value)}
                       placeholder="Enter username"
+                      className="bg-background border-border text-foreground"
                     />
                   </div>
                   <div>
@@ -136,21 +140,22 @@ const UserManagement = () => {
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="Enter password"
+                      className="bg-background border-border text-foreground"
                     />
                   </div>
                   <div>
                     <Label htmlFor="new-user-role">Role</Label>
                     <Select value={newUserRole} onValueChange={(value: User['role']) => setNewUserRole(value)}>
-                      <SelectTrigger id="new-user-role">
+                      <SelectTrigger id="new-user-role" className="bg-background border-border text-foreground">
                         <SelectValue placeholder="Select role" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="user">User</SelectItem>
-                        <SelectItem value="admin">Admin</SelectItem>
+                      <SelectContent className="bg-card text-foreground border-border">
+                        <SelectItem value="user" className="hover:bg-secondary">User</SelectItem>
+                        <SelectItem value="admin" className="hover:bg-secondary">Admin</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  <Button onClick={handleCreateUser} disabled={isCreatingUser} className="w-full">
+                  <Button onClick={handleCreateUser} disabled={isCreatingUser} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
                     <UserPlus className={`h-4 w-4 mr-2 ${isCreatingUser ? 'animate-spin' : ''}`} />
                     {isCreatingUser ? "Creating..." : "Create User"}
                   </Button>
@@ -160,10 +165,10 @@ const UserManagement = () => {
 
             {/* Existing Users List */}
             <div className="lg:col-span-2">
-              <Card>
+              <Card className="bg-background border-border">
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle className="text-lg">Existing Users</CardTitle>
-                  <Button onClick={fetchUsers} variant="outline" size="sm" disabled={isLoadingUsers}>
+                  <Button onClick={fetchUsers} variant="outline" size="sm" disabled={isLoadingUsers} className="bg-secondary hover:bg-secondary/80 text-foreground border-border">
                     <RefreshCw className={`h-4 w-4 ${isLoadingUsers ? 'animate-spin' : ''}`} />
                   </Button>
                 </CardHeader>
@@ -180,41 +185,44 @@ const UserManagement = () => {
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      {users.map((user) => (
-                        <div key={user.id} className="flex items-center justify-between p-3 border rounded-lg">
-                          <div className="flex items-center gap-3">
-                            <Users className="h-5 w-5 text-muted-foreground" />
-                            <div>
-                              <span className="font-medium">{user.username}</span>
-                              <p className="text-xs text-muted-foreground capitalize">Role: {user.role}</p>
+                      {users.map((user) => {
+                        const isSelf = currentUser && currentUser.username === user.username;
+                        return (
+                          <div key={user.id} className="flex items-center justify-between p-3 border rounded-lg bg-muted border-border">
+                            <div className="flex items-center gap-3">
+                              <Users className="h-5 w-5 text-muted-foreground" />
+                              <div>
+                                <span className="font-medium text-foreground">{user.username} {isSelf && "(You)"}</span>
+                                <p className="text-xs text-muted-foreground capitalize">Role: {user.role}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Select
+                                value={user.role}
+                                onValueChange={(value: User['role']) => handleUpdateUserRole(user.id, user.username, value)}
+                                disabled={isSelf} // Disable role change for self
+                              >
+                                <SelectTrigger className="w-[100px] h-8 text-xs bg-background border-border text-foreground">
+                                  <SelectValue placeholder="Role" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-card text-foreground border-border">
+                                  <SelectItem value="user" className="hover:bg-secondary">User</SelectItem>
+                                  <SelectItem value="admin" className="hover:bg-secondary">Admin</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <Button
+                                variant="destructive"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={() => handleDeleteUser(user.id, user.username)}
+                                disabled={isSelf} // Disable delete for self
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Select
-                              value={user.role}
-                              onValueChange={(value: User['role']) => handleUpdateUserRole(user.id, user.username, value)}
-                              disabled={user.username === 'admin'} // Prevent changing admin role
-                            >
-                              <SelectTrigger className="w-[100px] h-8 text-xs">
-                                <SelectValue placeholder="Role" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="user">User</SelectItem>
-                                <SelectItem value="admin">Admin</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <Button
-                              variant="destructive"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => handleDeleteUser(user.id, user.username)}
-                              disabled={user.username === 'admin'} // Prevent deleting admin
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </CardContent>

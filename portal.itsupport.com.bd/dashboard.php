@@ -18,16 +18,26 @@ if (isset($_GET['order_pending'])) {
     $message = '<div class="alert-glass-warning mb-4">Order #' . htmlspecialchars($_GET['order_pending']) . ' placed successfully! Your payment is pending approval. Licenses will be issued once payment is confirmed by an administrator.</div>';
 }
 
-// Fetch customer's licenses
+// Fetch customer's licenses, including product category
 $stmt_licenses = $pdo->prepare("
-    SELECT l.*, p.name as product_name, p.description as product_description
+    SELECT l.*, p.name as product_name, p.description as product_description, p.category as product_category
     FROM `licenses` l
     JOIN `products` p ON l.product_id = p.id
     WHERE l.customer_id = ?
-    ORDER BY l.expires_at DESC
+    ORDER BY p.category ASC, l.expires_at DESC
 ");
 $stmt_licenses->execute([$customer_id]);
 $licenses = $stmt_licenses->fetchAll(PDO::FETCH_ASSOC);
+
+// Group licenses by category
+$licenses_by_category = [];
+foreach ($licenses as $license) {
+    $category = $license['product_category'] ?? 'Uncategorized';
+    if (!isset($licenses_by_category[$category])) {
+        $licenses_by_category[$category] = [];
+    }
+    $licenses_by_category[$category][] = $license;
+}
 
 // Fetch customer's order history
 $stmt_orders = $pdo->prepare("
@@ -58,31 +68,38 @@ portal_header("My Dashboard - IT Support BD Portal");
                 <a href="products.php" class="btn-glass-primary mt-4">Buy Licenses</a>
             </div>
         <?php else: ?>
-            <div class="space-y-4">
-                <?php foreach ($licenses as $license): ?>
-                    <div class="glass-card p-4 shadow-sm">
-                        <h3 class="text-xl font-semibold text-blue-300"><?= htmlspecialchars($license['product_name']) ?></h3>
-                        <p class="text-gray-200 text-sm mb-2"><?= htmlspecialchars($license['product_description']) ?></p>
-                        <div class="bg-gray-800 p-3 rounded-md font-mono text-sm break-all mb-2 flex items-center justify-between">
-                            <strong class="text-gray-300">License Key:</strong> <span id="license-key-<?= htmlspecialchars($license['id']) ?>" class="text-white"><?= htmlspecialchars($license['license_key']) ?></span>
-                            <button class="ml-2 text-blue-400 hover:text-blue-300 transition-colors" onclick="copyToClipboard('license-key-<?= htmlspecialchars($license['id']) ?>')">
-                                <i class="fas fa-copy"></i> Copy
-                            </button>
+            <div class="space-y-6">
+                <?php foreach ($licenses_by_category as $category => $category_licenses): ?>
+                    <div class="border-b border-gray-600 pb-4">
+                        <h3 class="text-xl font-bold text-blue-300 mb-3"><?= htmlspecialchars($category) ?> Licenses</h3>
+                        <div class="space-y-4">
+                            <?php foreach ($category_licenses as $license): ?>
+                                <div class="glass-card p-4 shadow-sm">
+                                    <h4 class="text-lg font-semibold text-white"><?= htmlspecialchars($license['product_name']) ?></h4>
+                                    <p class="text-gray-200 text-sm mb-2"><?= htmlspecialchars($license['product_description']) ?></p>
+                                    <div class="bg-gray-800 p-3 rounded-md font-mono text-sm break-all mb-2 flex items-center justify-between">
+                                        <strong class="text-gray-300">License Key:</strong> <span id="license-key-<?= htmlspecialchars($license['id']) ?>" class="text-white"><?= htmlspecialchars($license['license_key']) ?></span>
+                                        <button class="ml-2 text-blue-400 hover:text-blue-300 transition-colors" onclick="copyToClipboard('license-key-<?= htmlspecialchars($license['id']) ?>')">
+                                            <i class="fas fa-copy"></i> Copy
+                                        </button>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-2 text-sm text-gray-200">
+                                        <span><strong>Status:</strong> <span class="font-semibold <?= $license['status'] == 'active' || $license['status'] == 'free' ? 'text-green-400' : 'text-red-400' ?>"><?= htmlspecialchars(ucfirst($license['status'])) ?></span></span>
+                                        <span><strong>Max Devices:</strong> <?= htmlspecialchars($license['max_devices']) ?></span>
+                                        <span><strong>Issued:</strong> <?= date('Y-m-d', strtotime($license['issued_at'])) ?></span>
+                                        <span><strong>Expires:</strong> <?= date('Y-m-d', strtotime($license['expires_at'])) ?></span>
+                                        <span><strong>Current Devices:</strong> <?= htmlspecialchars($license['current_devices']) ?></span>
+                                    </div>
+                                    <?php if ($license['status'] == 'active' || $license['status'] == 'free'): ?>
+                                        <div class="mt-4">
+                                            <a href="license_details.php?license_id=<?= htmlspecialchars($license['id']) ?>" class="btn-glass-primary text-center inline-block">
+                                                <i class="fas fa-download mr-2"></i>Download Setup Files
+                                            </a>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
-                        <div class="grid grid-cols-2 gap-2 text-sm text-gray-200">
-                            <span><strong>Status:</strong> <span class="font-semibold <?= $license['status'] == 'active' || $license['status'] == 'free' ? 'text-green-400' : 'text-red-400' ?>"><?= htmlspecialchars(ucfirst($license['status'])) ?></span></span>
-                            <span><strong>Max Devices:</strong> <?= htmlspecialchars($license['max_devices']) ?></span>
-                            <span><strong>Issued:</strong> <?= date('Y-m-d', strtotime($license['issued_at'])) ?></span>
-                            <span><strong>Expires:</strong> <?= date('Y-m-d', strtotime($license['expires_at'])) ?></span>
-                            <span><strong>Current Devices:</strong> <?= htmlspecialchars($license['current_devices']) ?></span>
-                        </div>
-                        <?php if ($license['status'] == 'active' || $license['status'] == 'free'): ?>
-                            <div class="mt-4">
-                                <a href="license_details.php?license_id=<?= htmlspecialchars($license['id']) ?>" class="btn-glass-primary text-center inline-block">
-                                    <i class="fas fa-download mr-2"></i>Download Setup Files
-                                </a>
-                            </div>
-                        <?php endif; ?>
                     </div>
                 <?php endforeach; ?>
             </div>

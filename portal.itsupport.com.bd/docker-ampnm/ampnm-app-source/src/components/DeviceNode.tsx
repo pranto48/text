@@ -28,6 +28,7 @@ const iconMap: { [key: string]: React.ComponentType<any> } = {
   laptop: Laptop,
   wifi: Wifi,
   database: Database,
+  // Add other icons as needed for device types
 };
 
 const DeviceNode = ({ data }: { data: any }) => {
@@ -63,6 +64,7 @@ const DeviceNode = ({ data }: { data: any }) => {
   const IconComponent = iconMap[data.icon] || Server;
   const iconSize = data.icon_size || 50;
   const nameTextSize = data.name_text_size || 14;
+  const canEdit = data.canEdit; // Get permission status
 
   const statusBorderColor =
     data.status === 'online'
@@ -82,23 +84,23 @@ const DeviceNode = ({ data }: { data: any }) => {
       <Handle type="source" position={Position.Right} />
       <Handle type="source" position={Position.Bottom} />
       <Handle type="source" position={Position.Left} />
-      <Card className={`w-64 shadow-lg bg-gray-800 border-gray-700 text-white border-2 ${statusBorderColor}`}>
+      <Card className={`w-64 shadow-lg bg-card border-2 ${statusBorderColor}`}>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3">
-          <CardTitle style={{ fontSize: `${nameTextSize}px` }} className="font-medium text-white truncate">
+          <CardTitle style={{ fontSize: `${nameTextSize}px` }} className="font-medium text-foreground truncate">
             {data.name}
           </CardTitle>
-          <IconComponent style={{ height: `${iconSize}px`, width: `${iconSize}px` }} />
+          <IconComponent style={{ height: `${iconSize}px`, width: `${iconSize}px` }} className="text-primary" />
         </CardHeader>
         <CardContent className="p-3">
-          <div className="font-mono text-xs text-gray-400 mb-2">{data.ip_address || 'No IP'}</div>
+          <div className="font-mono text-xs text-muted-foreground mb-2">{data.ip_address || 'No IP'}</div>
           
           <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 text-muted-foreground">
               {statusIcon}
               <span className="text-xs capitalize">{data.status || 'unknown'}</span>
             </div>
             {data.last_ping && (
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-muted-foreground">
                 {new Date(data.last_ping).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </div>
             )}
@@ -109,7 +111,7 @@ const DeviceNode = ({ data }: { data: any }) => {
               size="sm" 
               onClick={handlePing} 
               disabled={isPinging || !data.ip_address}
-              className="h-7 text-xs"
+              className="h-7 text-xs bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               <Activity className={`mr-1 h-3 w-3 ${isPinging ? 'animate-spin' : ''}`} />
               Ping
@@ -124,25 +126,27 @@ const DeviceNode = ({ data }: { data: any }) => {
             )}
           </div>
         </CardContent>
-        <div className="absolute top-1 right-1">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-6 w-6">
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => data.onEdit(data.id)}>
-                <Edit className="mr-2 h-4 w-4" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => data.onDelete(data.id)} className="text-red-500">
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        {canEdit && (
+          <div className="absolute top-1 right-1">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => data.onEdit(data.id)}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => data.onDelete(data.id)} className="text-destructive">
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
       </Card>
     </>
   );

@@ -58,10 +58,10 @@ const PingHistory = () => {
 
   return (
     <div className="space-y-4">
-      <Card>
+      <Card className="bg-card text-foreground border-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <History className="h-5 w-5" />
+            <History className="h-5 w-5 text-primary" />
             Ping History
           </CardTitle>
           <CardDescription>
@@ -69,26 +69,26 @@ const PingHistory = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-2 mb-4">
+          <div className="flex flex-col sm:flex-row gap-2 mb-4"> {/* Adjusted flex direction here */}
             <Input
               placeholder="Filter by host (e.g., 192.168.1.1)"
               value={filterHost}
               onChange={(e) => setFilterHost(e.target.value)}
-              className="flex-1"
+              className="flex-1 bg-background border-border text-foreground"
             />
             <Input
               type="number"
               placeholder="Limit"
               value={limit}
               onChange={(e) => setLimit(Math.max(1, parseInt(e.target.value) || 20))}
-              className="w-20"
+              className="w-full sm:w-20 bg-background border-border text-foreground" {/* Adjusted width here */}
               min="1"
               max="100"
             />
-            <Button onClick={loadHistory} variant="outline">
+            <Button onClick={loadHistory} variant="outline" className="bg-secondary hover:bg-secondary/80 text-foreground border-border">
               Refresh
             </Button>
-            <Button onClick={exportToCSV} variant="outline">
+            <Button onClick={exportToCSV} variant="outline" className="bg-secondary hover:bg-secondary/80 text-foreground border-border">
               <Download className="h-4 w-4 mr-2" />
               Export CSV
             </Button>
@@ -100,7 +100,7 @@ const PingHistory = () => {
               <p className="text-sm text-muted-foreground">Loading history...</p>
             </div>
           ) : history.length === 0 ? (
-            <div className="text-center p-8 border rounded-lg bg-muted">
+            <div className="text-center p-8 border rounded-lg bg-muted border-border">
               <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-sm text-muted-foreground">
                 No ping history found. Perform some pings first to see results here.
@@ -109,17 +109,17 @@ const PingHistory = () => {
           ) : (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">
+                <span className="text-sm font-medium text-muted-foreground">
                   {history.length} result{history.length !== 1 ? 's' : ''}
                   {filterHost && ` for ${filterHost}`}
                 </span>
               </div>
 
               {history.map((item, index) => (
-                <div key={index} className="p-4 border rounded-lg space-y-3">
+                <div key={index} className="p-4 border rounded-lg space-y-3 bg-background border-border">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <BarChart3 className="h-5 w-5 text-blue-500" />
+                      <BarChart3 className="h-5 w-5 text-primary" />
                       <div>
                         <span className="font-mono text-sm font-medium">{item.host}</span>
                         <p className="text-xs text-muted-foreground">

@@ -46,6 +46,12 @@ switch ($action) {
             }
         }
         break;
+        
+    case 'get_products': // NEW ACTION
+        $stmt = $pdo->query("SELECT id, name, description, price, max_devices, license_duration_days FROM `products` ORDER BY price ASC");
+        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        echo json_encode(['success' => true, 'products' => $products]);
+        break;
 
     default:
         http_response_code(404);
